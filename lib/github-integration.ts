@@ -95,7 +95,7 @@ export class GitHubAutoFixer {
       }
 
       return null;
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -636,6 +636,47 @@ If any issues occur, you can quickly revert by:
 ---
 🤖 Generated with [Security Headers Analyzer](https://github.com/yourusername/security-headers-analyzer)
 `;
+  }
+
+  /**
+   * Verify repository access and permissions
+   */
+  async verifyRepositoryAccess(repoInfo: RepositoryInfo): Promise<boolean> {
+    if (!this.isAuthenticated) {
+      throw new Error('Authentication required');
+    }
+
+    try {
+      const { owner, repo } = repoInfo;
+
+      await this.octokit.rest.repos.get({
+        owner,
+        repo,
+      });
+
+      const { data: permissions } = await this.octokit.rest.repos.getCollaboratorPermissionLevel({
+        owner,
+        repo,
+        username: (await this.octokit.rest.users.getAuthenticated()).data.login,
+      });
+
+      if (!permissions.permission || !['write', 'admin'].includes(permissions.permission)) {
+        throw new Error('Insufficient permissions. Write access required.');
+      }
+
+      return true;
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes('Not Found')) {
+          throw new Error('Repository not found or access denied');
+        }
+        if (error.message.includes('rate limit')) {
+          throw new Error('GitHub API rate limit exceeded');
+        }
+        throw error;
+      }
+      throw new Error('Repository verification failed');
+    }
   }
 }
 

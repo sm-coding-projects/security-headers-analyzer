@@ -40,6 +40,8 @@ export interface AnalysisResult {
   };
   framework?: string;
   timestamp: string;
+  cached?: boolean;
+  cacheTimestamp?: string;
 }
 
 export interface Recommendation {
