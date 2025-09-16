@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import * as Tabs from '@radix-ui/react-tabs';
@@ -23,6 +23,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 export default function AdvancedDashboard() {
   const [activeTab, setActiveTab] = useState('trends');
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [latestAnalysis, setLatestAnalysis] = useState(null);
 
   const tabs = [
     {
@@ -55,9 +56,52 @@ export default function AdvancedDashboard() {
     }
   ];
 
+  // Load latest analysis and dark mode from main app
+  useEffect(() => {
+    // Load dark mode state from localStorage
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setIsDarkMode(savedDarkMode);
+    if (savedDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
+    const loadLatestAnalysis = () => {
+      // Load from recentAnalyses (from main app)
+      const recentAnalyses = localStorage.getItem('recentAnalyses');
+      if (recentAnalyses) {
+        const analyses = JSON.parse(recentAnalyses);
+        if (analyses.length > 0) {
+          // Get the most recent analysis
+          const mostRecent = analyses[0];
+          setLatestAnalysis({
+            url: mostRecent.url,
+            score: mostRecent.score,
+            grade: getGradeFromScore(mostRecent.score),
+            timestamp: mostRecent.timestamp
+          });
+        }
+      }
+    };
+
+    const getGradeFromScore = (score) => {
+      if (score >= 95) return 'A+';
+      if (score >= 85) return 'A';
+      if (score >= 75) return 'B';
+      if (score >= 65) return 'C';
+      if (score >= 50) return 'D';
+      return 'F';
+    };
+
+
+    loadLatestAnalysis();
+  }, []);
+
   const toggleDarkMode = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
+    localStorage.setItem('darkMode', String(newMode));
     if (newMode) {
       document.documentElement.classList.add('dark');
     } else {
@@ -165,7 +209,10 @@ export default function AdvancedDashboard() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <tab.component isDarkMode={isDarkMode} />
+                    <tab.component
+                      isDarkMode={isDarkMode}
+                      currentAnalysis={tab.id === 'trends' ? latestAnalysis : undefined}
+                    />
                   </motion.div>
                 </ErrorBoundary>
               </Tabs.Content>
