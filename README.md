@@ -1,156 +1,401 @@
-# Security Headers Analyzer & Auto-Fixer
+# 🔒 Security Headers Analyzer
 
-A comprehensive Next.js 14 application that analyzes website security headers and provides automated fix recommendations with GitHub integration.
+A comprehensive web security tool that analyzes HTTP security headers and automatically generates pull requests to fix security vulnerabilities in your projects.
 
-## Features
+[![CI/CD](https://github.com/yourusername/security-headers-analyzer/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/yourusername/security-headers-analyzer/actions)
+[![codecov](https://codecov.io/gh/yourusername/security-headers-analyzer/branch/main/graph/badge.svg)](https://codecov.io/gh/yourusername/security-headers-analyzer)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)](https://nextjs.org)
 
-### 🔍 **Comprehensive Analysis**
-- Analyzes 10+ critical security headers
-- Real-time scoring system (0-100 points)
-- Grade system (A+ to F)
-- Detailed severity classification
+## ✨ Features
 
-### 📊 **Visual Reports**
-- Interactive pie charts and bar graphs
-- Expandable header details
-- Color-coded severity indicators
-- Progress tracking visualization
+### 🔍 Security Analysis
+- **Comprehensive Header Analysis**: Analyzes 15+ critical security headers
+- **Real-time Scanning**: Instant analysis of any public website
+- **Security Scoring**: A-F grading system with detailed explanations
+- **Best Practice Recommendations**: Actionable advice for security improvements
 
-### 🔧 **Auto-Fix Capabilities**
-- Generate configuration files for multiple server types
-- Create GitHub pull requests automatically
-- Download detailed markdown reports
-- Implementation guides included
+### 🤖 GitHub Integration
+- **Automated Pull Requests**: Creates PRs with security header fixes
+- **Framework Detection**: Supports Next.js, Express, Apache, Nginx, and more
+- **Smart Code Generation**: Generates appropriate middleware/configuration code
+- **Branch Management**: Creates dedicated branches for security improvements
 
-### 🛡️ **Security Headers Checked**
+### 📊 Reporting & Export
+- **Detailed Reports**: Comprehensive analysis with recommendations
+- **PDF Export**: Professional security reports for compliance
+- **Historical Tracking**: Monitor security improvements over time
+- **Bulk Analysis**: Analyze multiple URLs simultaneously
 
-| Header | Severity | Description |
-|--------|----------|-------------|
-| Content-Security-Policy | Critical | Prevents XSS attacks |
-| Strict-Transport-Security | High | Forces HTTPS connections |
-| X-Content-Type-Options | Medium | Prevents MIME sniffing |
-| X-Frame-Options | Medium | Prevents clickjacking |
-| Referrer-Policy | Medium | Controls referrer information |
-| Permissions-Policy | Medium | Controls browser features |
-| Cross-Origin-Embedder-Policy | Medium | Prevents cross-origin embedding |
-| Cross-Origin-Resource-Policy | Medium | Controls resource sharing |
-| Cross-Origin-Opener-Policy | Medium | Prevents cross-origin references |
-| X-XSS-Protection | Low | Legacy XSS protection |
+### 🚀 Performance & Reliability
+- **Rate Limiting**: Built-in protection against abuse
+- **Caching**: Redis-powered caching for faster responses
+- **Error Handling**: Robust error handling with detailed messages
+- **Monitoring**: Built-in health checks and metrics
 
-## Quick Start
+## 🖼️ Screenshots
+
+### Homepage
+![Homepage](./docs/screenshots/homepage.png)
+
+### Analysis Results
+![Analysis Results](./docs/screenshots/analysis-results.png)
+
+### GitHub Integration
+![GitHub Integration](./docs/screenshots/github-integration.png)
+
+### Security Report
+![Security Report](./docs/screenshots/security-report.png)
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+
-- npm or yarn
+
+- Node.js 18+ and npm
 - Git
+- (Optional) Docker and Docker Compose
+- (Optional) GitHub Personal Access Token for PR creation
 
 ### Installation
 
-1. **Install dependencies**
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/security-headers-analyzer.git
+   cd security-headers-analyzer
+   ```
+
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-2. **Run development server**
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your configuration
+   ```
+
+4. **Run the development server**
    ```bash
    npm run dev
    ```
 
-3. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+5. **Open your browser**
+   Visit [http://localhost:3000](http://localhost:3000)
 
-## Project Structure
+### Using Docker
 
+1. **Start with Docker Compose**
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Access the application**
+   - Main app: [http://localhost:3000](http://localhost:3000)
+   - pgAdmin: [http://localhost:5050](http://localhost:5050)
+   - Redis Commander: [http://localhost:8081](http://localhost:8081)
+
+## 📖 Usage
+
+### Web Interface
+
+1. **Analyze a Website**
+   - Enter a URL in the homepage input field
+   - Click "Analyze Security Headers"
+   - Review the detailed security analysis
+
+2. **Generate GitHub PR**
+   - After analysis, click "Create GitHub PR"
+   - Enter your repository URL and GitHub token
+   - Review and customize the PR details
+   - Click "Create Pull Request"
+
+3. **Export Reports**
+   - Click "Export Report" on any analysis
+   - Choose PDF format for professional reports
+   - Download and share with your team
+
+### API Usage
+
+#### Analyze URL
+```bash
+curl -X POST http://localhost:3000/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com"}'
+```
+
+#### Create GitHub PR
+```bash
+curl -X POST http://localhost:3000/api/github/create-pr \
+  -H "Content-Type: application/json" \
+  -d '{
+    "repoUrl": "https://github.com/owner/repo",
+    "headers": [{"name": "Content-Security-Policy", "missing": true}],
+    "githubToken": "ghp_your_token_here"
+  }'
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `NEXT_PUBLIC_APP_URL` | Public URL of the application | Yes | `http://localhost:3000` |
+| `DATABASE_URL` | PostgreSQL connection string | No | In-memory storage |
+| `RATE_LIMIT_REDIS_URL` | Redis URL for rate limiting | No | In-memory rate limiting |
+| `SECRET_KEY` | Secret key for encryption | Yes | - |
+| `GITHUB_APP_ID` | GitHub App ID | No | - |
+| `GITHUB_PRIVATE_KEY` | GitHub App private key | No | - |
+| `SENTRY_DSN` | Sentry DSN for error tracking | No | - |
+| `ANALYTICS_ID` | Google Analytics ID | No | - |
+
+### Security Headers Analyzed
+
+- **Content Security Policy (CSP)**: Prevents XSS attacks
+- **X-Frame-Options**: Prevents clickjacking attacks
+- **X-Content-Type-Options**: Prevents MIME type sniffing
+- **Strict-Transport-Security (HSTS)**: Enforces HTTPS
+- **X-XSS-Protection**: Legacy XSS protection
+- **Referrer-Policy**: Controls referrer information
+- **Permissions-Policy**: Controls browser features
+- **Cross-Origin-Embedder-Policy**: Controls cross-origin embedding
+- **Cross-Origin-Opener-Policy**: Controls cross-origin window interactions
+- **Cross-Origin-Resource-Policy**: Controls cross-origin resource sharing
+
+## 🧪 Testing
+
+### Run Tests
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run tests in CI mode
+npm run test:ci
+```
+
+### Test Structure
+- `__tests__/api-routes.test.ts` - API endpoint tests
+- `__tests__/security-headers.test.ts` - Security analysis tests
+- `__tests__/github-integration.test.ts` - GitHub integration tests
+
+### E2E Testing
+```bash
+# Install Playwright
+npx playwright install
+
+# Run E2E tests
+npx playwright test
+```
+
+## 🏗️ Development
+
+### Project Structure
 ```
 security-headers-analyzer/
 ├── src/
-│   └── app/
-│       ├── api/
-│       │   ├── analyze/route.ts          # Analysis API endpoint
-│       │   └── github/create-pr/route.ts # GitHub PR creation
-│       ├── globals.css                   # Global styles
-│       ├── layout.tsx                    # Root layout
-│       └── page.tsx                      # Main dashboard
-├── components/
-│   ├── URLInput.tsx                      # URL input with validation
-│   └── HeadersReport.tsx                 # Analysis results display
-├── lib/
-│   ├── security-headers.ts               # Core analysis logic
-│   └── github-integration.ts             # GitHub API integration
-├── types/
-│   └── security.ts                       # TypeScript interfaces
-└── package.json
+│   ├── app/                 # Next.js App Router
+│   │   ├── api/            # API routes
+│   │   ├── advanced/       # Advanced analysis page
+│   │   └── page.tsx        # Homepage
+│   ├── lib/                # Utility libraries
+│   │   ├── security-headers.ts
+│   │   ├── github-integration.ts
+│   │   ├── cache.ts
+│   │   └── rate-limiter.ts
+│   └── types/              # TypeScript type definitions
+├── __tests__/              # Test files
+├── docker/                 # Docker configuration
+├── .github/                # GitHub workflows
+└── docs/                   # Documentation
 ```
 
-## Usage
+### Tech Stack
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI
+- **Database**: PostgreSQL (optional)
+- **Cache**: Redis (optional)
+- **Testing**: Jest + React Testing Library
+- **E2E Testing**: Playwright
+- **Deployment**: Vercel
 
-### Basic Analysis
+### Adding New Security Headers
 
-1. Enter a website URL in the input field
-2. Click "Analyze Security Headers"
-3. View the comprehensive security report
-4. Review recommendations for improvements
+1. **Update the analyzer**
+   ```typescript
+   // src/lib/security-headers.ts
+   const SECURITY_HEADERS = {
+     'your-new-header': {
+       name: 'Your-New-Header',
+       description: 'Description of the header',
+       severity: 'high',
+       checkValue: (value: string) => {
+         // Validation logic
+         return { valid: true, issues: [] };
+       }
+     }
+   };
+   ```
 
-### GitHub Integration
+2. **Add tests**
+   ```typescript
+   // __tests__/security-headers.test.ts
+   describe('Your-New-Header', () => {
+     it('should validate correct header value', () => {
+       // Test implementation
+     });
+   });
+   ```
 
-1. Click "Create Fix PR" on any analysis report
-2. Enter your GitHub Personal Access Token
-3. Provide the target repository URL
-4. The tool will create a PR with configuration files
+3. **Update documentation**
+   Update this README and add examples to the docs folder.
 
-### Creating GitHub Token
+## 🚀 Deployment
 
-1. Go to GitHub Settings → Developer settings → Personal access tokens
-2. Generate new token with `repo` permissions
-3. Copy the token for use in the application
+### Vercel (Recommended)
 
-## Development Scripts
+1. **Connect to GitHub**
+   - Import your repository in Vercel
+   - Configure environment variables
+   - Deploy automatically
 
-```bash
-# Development
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
+2. **Environment Variables**
+   Set up the following in Vercel dashboard:
+   - `NEXT_PUBLIC_APP_URL`
+   - `SECRET_KEY`
+   - `DATABASE_URL` (if using PostgreSQL)
+   - `RATE_LIMIT_REDIS_URL` (if using Redis)
 
-# Quality Assurance
-npm run lint         # Run ESLint
-npm run typecheck    # Run TypeScript checks
-npm run analyze      # Run full analysis (build + typecheck + lint)
-```
+### Docker
 
-## Technology Stack
+1. **Build the image**
+   ```bash
+   docker build -t security-headers-analyzer .
+   ```
 
-- **Framework:** Next.js 14 with App Router
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **Charts:** Recharts
-- **HTTP Client:** Axios
-- **GitHub API:** Octokit REST
-- **Notifications:** React Hot Toast
-- **Icons:** Lucide React
+2. **Run the container**
+   ```bash
+   docker run -p 3000:3000 security-headers-analyzer
+   ```
 
-## Security Considerations
+### Manual Deployment
 
-This tool is designed for **defensive security purposes only**:
+1. **Build the application**
+   ```bash
+   npm run build
+   ```
 
-✅ **Allowed Uses:**
-- Security analysis and assessment
-- Vulnerability detection
-- Security configuration recommendations
-- Defensive tool development
+2. **Start the production server**
+   ```bash
+   npm start
+   ```
 
-❌ **Prohibited Uses:**
-- Malicious code creation or modification
-- Credential harvesting or discovery
-- Unauthorized security testing
-- Exploitation tool development
+## 📊 Monitoring
 
-## Deploy on Vercel
+### Health Checks
+- **Application Health**: `GET /api/health`
+- **Database Health**: `GET /api/health/db`
+- **Redis Health**: `GET /api/health/redis`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Metrics
+- Response time tracking
+- Rate limit monitoring
+- Error rate tracking
+- GitHub API usage
 
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Logging
+- Structured JSON logging
+- Error tracking with Sentry
+- Request/response logging
+- Performance metrics
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Development Workflow
+
+1. **Fork the repository**
+2. **Create a feature branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. **Make your changes**
+4. **Add tests**
+5. **Run the test suite**
+   ```bash
+   npm test
+   npm run lint
+   npm run typecheck
+   ```
+6. **Commit your changes**
+   ```bash
+   git commit -m "feat: add your feature description"
+   ```
+7. **Push to your fork**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+8. **Create a Pull Request**
+
+### Commit Convention
+We use [Conventional Commits](https://www.conventionalcommits.org/):
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `docs:` - Documentation changes
+- `test:` - Test additions/changes
+- `chore:` - Maintenance tasks
+
+## 🔒 Security Policy
+
+### Reporting Vulnerabilities
+If you discover a security vulnerability, please email security@yourdomain.com instead of creating a public issue.
+
+### Security Measures
+- Rate limiting on all API endpoints
+- Input validation and sanitization
+- CSRF protection
+- Secure headers implementation
+- Regular dependency updates
+- Automated security scanning
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [OWASP Secure Headers Project](https://owasp.org/www-project-secure-headers/)
+- [Mozilla Observatory](https://observatory.mozilla.org/)
+- [SecurityHeaders.com](https://securityheaders.com/)
+- [Helmet.js](https://helmetjs.github.io/)
+
+## 📞 Support
+
+- **Documentation**: [docs.yourdomain.com](https://docs.yourdomain.com)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/security-headers-analyzer/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/security-headers-analyzer/discussions)
+- **Email**: support@yourdomain.com
+
+## 🗺️ Roadmap
+
+- [ ] **Multi-language Support**: i18n implementation
+- [ ] **API Rate Plan**: Premium API access with higher limits
+- [ ] **Integration Hub**: Slack, Discord, Teams integrations
+- [ ] **Security Monitoring**: Continuous monitoring and alerts
+- [ ] **Compliance Reports**: SOC2, ISO27001 reporting templates
+- [ ] **Browser Extension**: Chrome/Firefox extension for quick analysis
+- [ ] **CLI Tool**: Command-line interface for CI/CD integration
 
 ---
 
-**Built with security in mind. Analyze responsibly.**
+Made with ❤️ by the Security Headers Analyzer team

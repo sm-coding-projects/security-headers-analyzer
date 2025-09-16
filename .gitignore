@@ -39,3 +39,52 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# testing additional
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+*.lcov
+.nyc_output
+
+# docker
+.dockerignore
+Dockerfile.dev
+
+# database
+*.db
+*.sqlite
+*.sqlite3
+dump.rdb
+
+# security files
+*.key
+*.crt
+*.p12
+
+# local development
+local.env
+dev.env
+
+# documentation screenshots
+docs/screenshots/
+
+# IDE
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+
+# backup files
+*.bak
+*.backup
+*.orig
+
+# OS specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~

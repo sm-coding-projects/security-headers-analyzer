@@ -1,0 +1,48 @@
+config:
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 10
+      name: "Sustained load"
+    - duration: 60
+      arrivalRate: 20
+      name: "Peak load"
+  processor: "./load-test-processor.js"
+
+scenarios:
+  - name: "Homepage visit"
+    weight: 40
+    flow:
+      - get:
+          url: "/"
+          capture:
+            - xpath: "//title"
+              as: "pageTitle"
+
+  - name: "Analyze URL"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/analyze"
+          json:
+            url: "https://example.com"
+          capture:
+            - json: "$.success"
+              as: "analysisSuccess"
+
+  - name: "Advanced page visit"
+    weight: 20
+    flow:
+      - get:
+          url: "/advanced"
+
+  - name: "API health check"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/health"
+          expect:
+            - statusCode: 200
