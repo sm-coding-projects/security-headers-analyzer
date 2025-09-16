@@ -1,103 +1,203 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { toast, Toaster } from 'react-hot-toast';
+import URLInput from '@/components/URLInput';
+import HeadersReport from '@/components/HeadersReport';
+import { SecurityAnalysis, AnalysisResponse, PRResponse } from '@/types/security';
+import { generateFixRecommendations } from '@/lib/security-headers';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [analysis, setAnalysis] = useState<SecurityAnalysis | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isCreatingPR, setIsCreatingPR] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleAnalyze = async (url: string) => {
+    setIsAnalyzing(true);
+    setAnalysis(null);
+
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      const data: AnalysisResponse = await response.json();
+
+      if (data.success && data.data) {
+        setAnalysis(data.data);
+        toast.success('Analysis completed successfully!');
+      } else {
+        toast.error(data.error || 'Analysis failed');
+      }
+    } catch (error) {
+      toast.error('Failed to analyze the URL. Please try again.');
+      console.error('Analysis error:', error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleCreatePR = async () => {
+    if (!analysis) return;
+
+    const githubToken = prompt(
+      'Enter your GitHub Personal Access Token:\n\n' +
+      'To create this token:\n' +
+      '1. Go to GitHub Settings > Developer settings > Personal access tokens\n' +
+      '2. Generate a new token with "repo" permissions\n' +
+      '3. Copy and paste it here'
+    );
+
+    if (!githubToken) {
+      toast.error('GitHub token is required to create a PR');
+      return;
+    }
+
+    const repoUrl = prompt(
+      'Enter the GitHub repository URL where you want to create the PR:\n' +
+      'Example: https://github.com/username/repository'
+    );
+
+    if (!repoUrl) {
+      toast.error('Repository URL is required');
+      return;
+    }
+
+    setIsCreatingPR(true);
+
+    try {
+      const response = await fetch('/api/github/create-pr', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          repoUrl,
+          headers: analysis.headers,
+          title: `Security Headers Fix - Improve security score from ${analysis.overallScore}/100`,
+          githubToken,
+        }),
+      });
+
+      const data: PRResponse = await response.json();
+
+      if (data.success && data.pullRequestUrl) {
+        toast.success('Pull request created successfully!');
+        window.open(data.pullRequestUrl, '_blank');
+      } else {
+        toast.error(data.error || 'Failed to create pull request');
+      }
+    } catch (error) {
+      toast.error('Failed to create pull request. Please try again.');
+      console.error('PR creation error:', error);
+    } finally {
+      setIsCreatingPR(false);
+    }
+  };
+
+  const handleDownloadReport = () => {
+    if (!analysis) return;
+
+    const report = generateFixRecommendations(analysis);
+    const blob = new Blob([report], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `security-headers-report-${new Date().toISOString().split('T')[0]}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Report downloaded successfully!');
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Toaster position="top-right" />
+
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Security Headers Analyzer
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Analyze your website&apos;s security headers, get detailed recommendations,
+            and automatically generate fix configurations for your servers.
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* URL Input Section */}
+        <div className="mb-12">
+          <URLInput onAnalyze={handleAnalyze} isLoading={isAnalyzing} />
+        </div>
+
+        {/* Results Section */}
+        {analysis && (
+          <div className="mb-12">
+            <HeadersReport
+              analysis={analysis}
+              onCreatePR={!isCreatingPR ? handleCreatePR : undefined}
+              onDownloadReport={handleDownloadReport}
+            />
+          </div>
+        )}
+
+        {/* Footer */}
+        <footer className="text-center py-8 border-t border-gray-200 mt-16">
+          <div className="max-w-4xl mx-auto">
+            <p className="text-gray-600 mb-4">
+              Built with Next.js 14, TypeScript, and Tailwind CSS
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-500">
+              <div>
+                <h3 className="font-semibold text-gray-700 mb-2">Security Headers Checked</h3>
+                <ul className="space-y-1">
+                  <li>Content-Security-Policy</li>
+                  <li>Strict-Transport-Security</li>
+                  <li>X-Content-Type-Options</li>
+                  <li>X-Frame-Options</li>
+                  <li>And 6 more...</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-700 mb-2">Features</h3>
+                <ul className="space-y-1">
+                  <li>Comprehensive analysis</li>
+                  <li>Visual scoring system</li>
+                  <li>Detailed recommendations</li>
+                  <li>Auto-generated configurations</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-700 mb-2">Export Options</h3>
+                <ul className="space-y-1">
+                  <li>Download detailed reports</li>
+                  <li>Create GitHub pull requests</li>
+                  <li>Multiple server configurations</li>
+                  <li>Implementation guides</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+
+      {/* Loading Overlay */}
+      {isCreatingPR && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl">
+            <div className="flex items-center space-x-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <span className="text-lg font-medium">Creating pull request...</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
