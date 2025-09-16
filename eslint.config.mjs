@@ -20,6 +20,19 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  {
+    files: ["**/__tests__/**/*.{js,ts,jsx,tsx}", "**/*.test.{js,ts,jsx,tsx}", "**/*.spec.{js,ts,jsx,tsx}", "**/jest.config.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off"
+    }
+  },
+  {
+    files: ["**/lib/**/*.{js,ts,jsx,tsx}", "**/components/**/*.{js,ts,jsx,tsx}"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+      "@typescript-eslint/no-explicit-any": "warn"
+    }
+  }
 ];
 
 export default eslintConfig;

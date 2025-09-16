@@ -138,7 +138,7 @@ class AISecurityAdvisor {
     const detectedTech = this.detectTechnologies(analysis.url);
     const siteType = this.classifySiteType(analysis.url, detectedTech);
 
-    let basePolicy = this.generateBasePolicyForSite(siteType, framework, options);
+    const basePolicy = this.generateBasePolicyForSite(siteType, framework, options);
     const optimizations = this.optimizePolicyForContext(basePolicy, detectedTech);
 
     const steps = this.generateImplementationSteps(basePolicy, framework);

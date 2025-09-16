@@ -3,6 +3,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home, Bug, Copy } from 'lucide-react';
 import { ErrorBoundaryState } from '@/types/security';
+import { captureComponentError } from '@/lib/error-tracking';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -41,8 +42,12 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   private logError = (error: Error, errorInfo: ErrorInfo) => {
+    // Capture error with our tracking system
+    const errorId = captureComponentError(error, errorInfo.componentStack || '');
+
     // In a real application, this would send to a monitoring service
     console.error('Error Boundary caught an error:', {
+      errorId,
       error: {
         name: error.name,
         message: error.message,
@@ -59,7 +64,16 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     try {
       if (typeof window !== 'undefined') {
         // Example: Send to analytics
-        // analytics.track('Error Boundary Triggered', { ... });
+        if (window.gtag) {
+          window.gtag('event', 'exception', {
+            description: error.message,
+            fatal: this.props.level === 'page',
+            custom_map: {
+              error_id: errorId,
+              error_boundary_level: this.props.level || 'component'
+            }
+          });
+        }
       }
     } catch (analyticsError) {
       console.error('Failed to send error to analytics:', analyticsError);
@@ -232,7 +246,7 @@ User Agent: ${navigator.userAgent}
                 Development Mode
               </h4>
               <p className="text-xs text-yellow-700 dark:text-yellow-300">
-                This error boundary is showing detailed information because you're in development mode.
+                This error boundary is showing detailed information because you&apos;re in development mode.
                 In production, users will see a friendlier error message.
               </p>
             </div>

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { defaultMetadata, structuredData } from "./metadata";
+import ServiceWorkerProvider from "@/components/ServiceWorkerProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,18 +14,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Security Headers Analyzer - Secure Your Website",
-  description: "Analyze your website's security headers, get detailed recommendations, and automatically generate fixes. Support for CSP, HSTS, X-Frame-Options, and 15+ other critical security headers.",
-  keywords: "security headers, CSP, HSTS, X-Frame-Options, web security, security analysis",
-  authors: [{ name: "Security Headers Analyzer" }],
-  viewport: "width=device-width, initial-scale=1",
-  openGraph: {
-    title: "Security Headers Analyzer - Secure Your Website",
-    description: "Analyze your website's security headers and get instant recommendations with automated fixes.",
-    type: "website",
-  },
-};
+export const metadata: Metadata = defaultMetadata;
 
 export default function RootLayout({
   children,
@@ -35,7 +26,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
-        {children}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+        <ServiceWorkerProvider>
+          {children}
+        </ServiceWorkerProvider>
       </body>
     </html>
   );
