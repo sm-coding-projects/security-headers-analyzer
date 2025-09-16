@@ -33,6 +33,12 @@
     "react-hot-toast": "^2.6.0",
     "recharts": "^3.2.0"
   },
+  "overrides": {
+    "@testing-library/react": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
