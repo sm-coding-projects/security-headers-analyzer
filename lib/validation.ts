@@ -147,7 +147,7 @@ export function isValidRepositoryURL(url: string): boolean {
 
 // Additional validation functions for advanced features
 
-export const validateForm = (data: Record<string, any>, rules: FormValidation): ValidationResult => {
+export const validateForm = (data: Record<string, unknown>, rules: FormValidation): ValidationResult => {
   const errors: Record<string, string[]> = {};
   let isValid = true;
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import * as Tabs from '@radix-ui/react-tabs';
 import {
@@ -8,9 +9,6 @@ import {
   FileUp,
   Code,
   Settings,
-  BarChart3,
-  Zap,
-  Activity,
   Brain
 } from 'lucide-react';
 import clsx from 'clsx';
@@ -89,7 +87,7 @@ export default function AdvancedDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <a
+              <Link
                 href="/"
                 className={clsx('px-3 py-2 rounded-lg transition-colors', {
                   'hover:bg-gray-700 text-gray-300': isDarkMode,
@@ -97,7 +95,7 @@ export default function AdvancedDashboard() {
                 })}
               >
                 Back to Main
-              </a>
+              </Link>
               <button
                 onClick={toggleDarkMode}
                 className={clsx('p-2 rounded-lg transition-colors', {

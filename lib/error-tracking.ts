@@ -4,7 +4,7 @@ interface ErrorContext {
   userAgent?: string
   url?: string
   timestamp?: string
-  additionalData?: Record<string, any>
+  additionalData?: Record<string, unknown>
 }
 
 interface ErrorEvent {
@@ -154,7 +154,7 @@ class ErrorTracker {
       // Keep only the last 50 errors
       const trimmed = events.slice(-50)
       localStorage.setItem('error_events', JSON.stringify(trimmed))
-    } catch (e) {
+    } catch {
       // Silently fail if localStorage is not available
     }
   }
@@ -182,7 +182,7 @@ class ErrorTracker {
       }).catch(() => {
         // Silently fail to avoid recursive errors
       })
-    } catch (e) {
+    } catch {
       // Silently fail to avoid recursive errors
     }
   }
@@ -203,7 +203,7 @@ class ErrorTracker {
     this.errors = []
     try {
       localStorage.removeItem('error_events')
-    } catch (e) {
+    } catch {
       // Silently fail
     }
   }
@@ -232,7 +232,7 @@ class ErrorTracker {
       }).catch(() => {
         // Silently fail
       })
-    } catch (e) {
+    } catch {
       // Silently fail
     }
   }
@@ -249,7 +249,7 @@ export const captureApiError = (error: Error, endpoint: string, method = 'GET') 
   })
 }
 
-export const captureValidationError = (error: Error, field: string, value?: any) => {
+export const captureValidationError = (error: Error, field: string, value?: unknown) => {
   return errorTracker.captureError(error, {
     type: 'validation',
     severity: 'low',
@@ -257,7 +257,7 @@ export const captureValidationError = (error: Error, field: string, value?: any)
   })
 }
 
-export const captureSecurityError = (error: Error, context: Record<string, any>) => {
+export const captureSecurityError = (error: Error, context: Record<string, unknown>) => {
   return errorTracker.captureError(error, {
     type: 'security',
     severity: 'critical',

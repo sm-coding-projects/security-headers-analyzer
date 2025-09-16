@@ -5,7 +5,7 @@ interface CacheItem<T> {
 }
 
 class PerformanceCache {
-  private cache = new Map<string, CacheItem<any>>()
+  private cache = new Map<string, CacheItem<unknown>>()
   private readonly DEFAULT_TTL = 5 * 60 * 1000 // 5 minutes
 
   set<T>(key: string, data: T, ttl = this.DEFAULT_TTL): void {
@@ -57,7 +57,7 @@ class PerformanceCache {
 
 export const cache = new PerformanceCache()
 
-export function memoize<Args extends any[], Return>(
+export function memoize<Args extends unknown[], Return>(
   fn: (...args: Args) => Return,
   getKey?: (...args: Args) => string,
   ttl?: number
@@ -76,7 +76,7 @@ export function memoize<Args extends any[], Return>(
   }
 }
 
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
@@ -88,7 +88,7 @@ export function debounce<T extends (...args: any[]) => any>(
   }
 }
 
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {
@@ -192,10 +192,12 @@ export function usePerformanceMonitor() {
             console.log('LCP:', entry.startTime)
           }
           if (entry.entryType === 'first-input') {
-            console.log('FID:', entry.processingStart - entry.startTime)
+            const fidEntry = entry as PerformanceEventTiming
+            console.log('FID:', fidEntry.processingStart - fidEntry.startTime)
           }
           if (entry.entryType === 'layout-shift') {
-            console.log('CLS:', entry.value)
+            const clsEntry = entry as PerformanceEntry & { value: number }
+            console.log('CLS:', clsEntry.value)
           }
         }
       })

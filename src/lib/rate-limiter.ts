@@ -3,7 +3,7 @@
 export class InMemoryRateLimiter {
   constructor(private options: { windowMs: number; maxRequests: number }) {}
 
-  check(clientId: string) {
+  check(_clientId: string) {
     // Implementation would go here
     return {
       allowed: true,
@@ -13,7 +13,7 @@ export class InMemoryRateLimiter {
   }
 }
 
-export function getClientIdentifier(request: any): string {
+export function getClientIdentifier(_request: Record<string, unknown>): string {
   // Implementation would go here
   return 'client-id';
 }

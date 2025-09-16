@@ -238,7 +238,7 @@ export interface SecurityInsight {
   title: string;
   description: string;
   actionable: boolean;
-  data: any;
+  data: Record<string, unknown>;
   timestamp: string;
 }
 
@@ -360,7 +360,7 @@ export interface ValidationRule {
   minLength?: number;
   maxLength?: number;
   pattern?: RegExp;
-  custom?: (value: any) => boolean | string;
+  custom?: (value: unknown) => boolean | string;
 }
 
 export interface FormValidation {
@@ -373,7 +373,7 @@ export interface ValidationResult {
 }
 
 // API response types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -393,7 +393,7 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 // Event types for analytics
 export interface AnalyticsEvent {
   type: 'analysis_start' | 'analysis_complete' | 'feature_usage' | 'error' | 'export';
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   timestamp: string;
   sessionId: string;
   userId?: string;

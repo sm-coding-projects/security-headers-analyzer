@@ -9,17 +9,17 @@ export function validateAndNormalizeURL(url: string) {
   };
 }
 
-export function withTimeout<T>(promise: Promise<T>, timeout: number, message: string): Promise<T> {
+export function withTimeout<T>(promise: Promise<T>, _timeout: number, _message: string): Promise<T> {
   // Implementation would go here
   return promise;
 }
 
-export function isValidGitHubToken(token: string): boolean {
+export function isValidGitHubToken(_token: string): boolean {
   // Implementation would go here
   return true;
 }
 
-export function isValidRepositoryURL(url: string): boolean {
+export function isValidRepositoryURL(_url: string): boolean {
   // Implementation would go here
   return true;
 }

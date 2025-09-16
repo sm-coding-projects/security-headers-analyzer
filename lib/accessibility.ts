@@ -290,7 +290,7 @@ export const screenReader = {
   }),
 
   // Alert for important messages
-  alert: (message: string): AriaAttributes => ({
+  alert: (_message: string): AriaAttributes => ({
     role: 'alert',
     'aria-live': 'assertive',
     'aria-atomic': true
@@ -321,7 +321,7 @@ export const colorContrast = {
   }),
 
   // Calculate contrast ratio (simplified)
-  calculateContrast: (foreground: string, background: string): number => {
+  calculateContrast: (_foreground: string, _background: string): number => {
     // This is a simplified implementation
     // In a real app, you'd use a proper color contrast library
     return 4.5; // Return minimum WCAG AA ratio
@@ -337,7 +337,7 @@ export const motionPreferences = {
   },
 
   // Get animation styles based on preference
-  getAnimationStyles: (normalAnimation: any, reducedAnimation: any = {}) => {
+  getAnimationStyles: (normalAnimation: Record<string, string | number>, reducedAnimation: Record<string, string | number> = {}) => {
     return motionPreferences.prefersReducedMotion() ? reducedAnimation : normalAnimation;
   }
 };
@@ -476,7 +476,7 @@ export const accessiblePatterns = {
   })
 };
 
-export default {
+const accessibilityUtils = {
   liveAnnouncer,
   keyboardNavigation,
   focusManagement,
@@ -487,3 +487,5 @@ export default {
   a11yTesting,
   accessiblePatterns
 };
+
+export default accessibilityUtils;

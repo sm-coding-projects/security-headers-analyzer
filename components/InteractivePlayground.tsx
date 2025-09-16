@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Copy, Download, AlertCircle, CheckCircle, Code, Shield, Eye, EyeOff, Settings, Zap, Globe } from 'lucide-react';
+import { Play, Copy, Download, AlertCircle, CheckCircle, Code, Eye, EyeOff, Zap, Globe } from 'lucide-react';
 import * as Tabs from '@radix-ui/react-tabs';
-import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
 import { toast } from 'react-hot-toast';
 
@@ -65,7 +64,7 @@ export default function InteractivePlayground({ isDarkMode = false }: Playground
     }))
   );
   const [testUrl, setTestUrl] = useState('https://example.com');
-  const [testResults, setTestResults] = useState<any>(null);
+  const [testResults, setTestResults] = useState<{ csp?: { policy: string; score: number; violations: number }; hsts?: { header: string; score: number; maxAge: number }; permissions?: { header: string; score: number; restrictedFeatures: number } } | null>(null);
   const [isTestingHeaders, setIsTestingHeaders] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -97,7 +96,7 @@ export default function InteractivePlayground({ isDarkMode = false }: Playground
       .join(', ');
   }, [permissionsPolicy]);
 
-  const updateCSPDirective = (index: number, field: keyof CSPDirective, value: any) => {
+  const updateCSPDirective = (index: number, field: keyof CSPDirective, value: string | string[] | boolean) => {
     setCspDirectives(prev => prev.map((directive, i) =>
       i === index ? { ...directive, [field]: value } : directive
     ));
@@ -121,7 +120,7 @@ export default function InteractivePlayground({ isDarkMode = false }: Playground
     ));
   };
 
-  const updatePermissionPolicy = (index: number, field: keyof PermissionsPolicyDirective, value: any) => {
+  const updatePermissionPolicy = (index: number, field: keyof PermissionsPolicyDirective, value: string | string[] | boolean) => {
     setPermissionsPolicy(prev => prev.map((policy, i) =>
       i === index ? { ...policy, [field]: value } : policy
     ));
@@ -170,7 +169,7 @@ export default function InteractivePlayground({ isDarkMode = false }: Playground
 
       setTestResults(results);
       toast.success('Header testing completed!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to test headers');
     } finally {
       setIsTestingHeaders(false);

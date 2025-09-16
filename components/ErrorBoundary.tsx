@@ -118,7 +118,7 @@ User Agent: ${navigator.userAgent}
   };
 
   private renderErrorUI() {
-    const { error, errorInfo } = this.state;
+    const { error } = this.state;
     const { level = 'component', showDetails = false } = this.props;
 
     const isPageLevel = level === 'page';

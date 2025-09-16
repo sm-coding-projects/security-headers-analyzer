@@ -250,7 +250,19 @@ export class SecurityHeaderAnalyzer {
     return headerRules.map(rule => this.analyzeHeader(rule, headers));
   }
 
-  private analyzeHeader(rule: { name: string; required: boolean; weight: number; severity: 'low' | 'medium' | 'high' | 'critical'; description: string; recommendation: string; validator?: (value: string) => boolean; expectedValue?: string | RegExp; }, headers: Record<string, string>): SecurityHeader {
+  private analyzeHeader(
+    rule: {
+      name: string;
+      required: boolean;
+      weight: number;
+      severity: 'low' | 'medium' | 'high' | 'critical';
+      description: string;
+      recommendation: string;
+      validator?: (value: string) => boolean;
+      expectedValue?: string | RegExp;
+    },
+    headers: Record<string, string>
+  ): SecurityHeader {
     const headerKey = rule.name.toLowerCase();
     const headerValue = headers[headerKey];
     const present = !!headerValue;
@@ -578,11 +590,21 @@ export async function fetchHeaders(url: string) {
   return new SecurityHeaderAnalyzer()['fetchHeaders'](url);
 }
 
-export function generateFixRecommendations(analysis: { url: string; timestamp: string; score: number; grade: string; headers: { found: SecurityHeader[]; missing: SecurityHeader[]; misconfigured: SecurityHeader[]; }; }): string {
+export function generateFixRecommendations(analysis: {
+  url: string;
+  timestamp: string;
+  score: number;
+  grade: string;
+  headers: {
+    found: SecurityHeader[];
+    missing: SecurityHeader[];
+    misconfigured: SecurityHeader[];
+  };
+}): string {
   const analyzer = new SecurityHeaderAnalyzer();
-  const rules = analyzer.getSecurityHeaderRules();
+  const _rules = analyzer.getSecurityHeaderRules();
 
-  const allHeaders = [...analysis.headers.found, ...analysis.headers.missing, ...analysis.headers.misconfigured];
+  const _allHeaders = [...analysis.headers.found, ...analysis.headers.missing, ...analysis.headers.misconfigured];
   const failedHeaders = [...analysis.headers.missing, ...analysis.headers.misconfigured];
 
   if (failedHeaders.length === 0) {

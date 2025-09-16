@@ -266,7 +266,7 @@ export default function PricingPlans() {
               Need a Custom Solution?
             </h3>
             <p className="text-blue-100 mb-6">
-              Our Enterprise plan can be customized to fit your organization's specific security requirements.
+              Our Enterprise plan can be customized to fit your organization&apos;s specific security requirements.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">

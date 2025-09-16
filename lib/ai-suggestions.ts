@@ -79,8 +79,8 @@ export interface SecurityDocumentation {
 }
 
 class AISecurityAdvisor {
-  private knowledgeBase: Map<string, any> = new Map();
-  private policyTemplates: Map<string, any> = new Map();
+  private knowledgeBase: Map<string, Record<string, unknown>> = new Map();
+  private policyTemplates: Map<string, Record<string, unknown>> = new Map();
 
   constructor() {
     this.initializeKnowledgeBase();
@@ -139,7 +139,7 @@ class AISecurityAdvisor {
     const siteType = this.classifySiteType(analysis.url, detectedTech);
 
     const basePolicy = this.generateBasePolicyForSite(siteType, framework, options);
-    const optimizations = this.optimizePolicyForContext(basePolicy, detectedTech);
+    const _optimizations = this.optimizePolicyForContext(basePolicy, detectedTech);
 
     const steps = this.generateImplementationSteps(basePolicy, framework);
     const warnings = this.generateWarnings(basePolicy, options);
@@ -228,7 +228,7 @@ class AISecurityAdvisor {
       context: {
         url: analysis.url,
         detectedTech: this.detectTechnologies(analysis.url),
-        securityRisk: topIssue.severity as any
+        securityRisk: topIssue.severity as 'low' | 'medium' | 'high' | 'critical'
       },
       metadata: {
         generatedAt: new Date().toISOString(),
@@ -329,20 +329,20 @@ class AISecurityAdvisor {
   }
 
   private generateBasePolicyForSite(siteType: string, framework: string, options: CSPOptions): string {
-    const templates = this.policyTemplates.get('frameworks') as any;
-    const frameworkTemplate = templates[framework];
+    const templates = this.policyTemplates.get('frameworks') as Record<string, Record<string, unknown>>;
+    const frameworkTemplate = templates[framework] as Record<string, string>;
 
     if (frameworkTemplate) {
       return frameworkTemplate.production || frameworkTemplate.default;
     }
 
     // Generate based on site type
-    const securityKnowledge = this.knowledgeBase.get('security') as any;
-    const pattern = securityKnowledge['Content-Security-Policy'].commonPatterns
-      .find((p: any) => p.pattern === siteType);
+    const securityKnowledge = this.knowledgeBase.get('security') as Record<string, Record<string, unknown>>;
+    const pattern = (securityKnowledge['Content-Security-Policy'] as Record<string, unknown>).commonPatterns as Array<{ pattern: string; policy: string }>;
+    const foundPattern = pattern.find((p: { pattern: string; policy: string }) => p.pattern === siteType);
 
-    if (pattern) {
-      return this.customizePolicyForOptions(pattern.policy, options);
+    if (foundPattern) {
+      return this.customizePolicyForOptions(foundPattern.policy, options);
     }
 
     // Fallback to safe default
@@ -547,8 +547,8 @@ app.use((req, res, next) => {
 
   private analyzeDirective(directive: string, sources: string[]): PolicyIssue[] {
     const issues: PolicyIssue[] = [];
-    const securityKnowledge = this.knowledgeBase.get('security') as any;
-    const riskFactors = securityKnowledge['Content-Security-Policy'].riskFactors;
+    const securityKnowledge = this.knowledgeBase.get('security') as Record<string, Record<string, unknown>>;
+    const riskFactors = (securityKnowledge['Content-Security-Policy'] as Record<string, unknown>).riskFactors as Record<string, { risk: number; description: string }>;
 
     sources.forEach(source => {
       if (riskFactors[source]) {
@@ -600,7 +600,16 @@ app.use((req, res, next) => {
     return priorities[headerName] || 50;
   }
 
-  private generateHeaderRecommendation(header: SecurityHeader, analysis: AnalysisResult): any {
+  private generateHeaderRecommendation(header: SecurityHeader, analysis: AnalysisResult): {
+    content: string;
+    implementation: {
+      difficulty: 'easy' | 'medium' | 'hard';
+      estimatedTime: string;
+      steps: string[];
+      code: string;
+      warnings: string[];
+    };
+  } {
     // Generate AI-powered recommendation for specific header
     return {
       content: `To implement ${header.name}, ${header.recommendation}`,

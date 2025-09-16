@@ -30,7 +30,7 @@ export interface PRResponse {
 
 export interface GitHubPRRequest {
   repoUrl: string;
-  headers: any[];
+  headers: unknown[];
   title?: string;
   branch?: string;
 }

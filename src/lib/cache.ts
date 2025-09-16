@@ -3,12 +3,12 @@
 export class InMemoryCache<T> {
   constructor(private options: { ttl: number; maxSize: number }) {}
 
-  get(key: string): T | null {
+  get(_key: string): T | null {
     // Implementation would go here
     return null;
   }
 
-  set(key: string, value: T): void {
+  set(_key: string, _value: T): void {
     // Implementation would go here
   }
 }

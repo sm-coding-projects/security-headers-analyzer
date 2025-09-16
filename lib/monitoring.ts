@@ -22,7 +22,7 @@ export interface SecurityInsight {
   title: string;
   description: string;
   actionable: boolean;
-  data: any;
+  data: Record<string, unknown>;
   timestamp: string;
 }
 
@@ -221,7 +221,7 @@ export class SecurityMonitoringService {
 
   public getSecurityInsights(): SecurityInsight[] {
     const insights: SecurityInsight[] = [];
-    const analyses = this.getStoredAnalyses();
+    const _analyses = this.getStoredAnalyses();
     const stats = this.getUsageStatistics();
 
     // Trend insights
@@ -437,7 +437,7 @@ export class SecurityMonitoringService {
     // Implementation would depend on specific insight rules
   }
 
-  private getStoredAnalyses(): any[] {
+  private getStoredAnalyses(): Array<AnalysisResult & { recordedAt?: string; sessionId?: string }> {
     try {
       const stored = this.storage.getItem(this.STORAGE_KEYS.ANALYSES);
       return stored ? JSON.parse(stored) : [];
@@ -457,7 +457,12 @@ export class SecurityMonitoringService {
     }
   }
 
-  private getSessionData(): any {
+  private getSessionData(): {
+    sessionId: string;
+    startTime: string;
+    featuresUsed: Record<string, number>;
+    lastActivity: string;
+  } {
     try {
       const stored = this.storage.getItem(this.STORAGE_KEYS.SESSION_DATA);
       return stored ? JSON.parse(stored) : {
@@ -478,7 +483,7 @@ export class SecurityMonitoringService {
   }
 
   private generateSessionId(): string {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
   }
 
   private generateEmptyStatistics(): UsageStatistics {
@@ -510,7 +515,7 @@ export class SecurityMonitoringService {
     return (secondAvg - firstAvg) / firstAvg;
   }
 
-  private calculateImprovementRate(analyses: any[]): number {
+  private calculateImprovementRate(analyses: Array<AnalysisResult & { recordedAt?: string; sessionId?: string }>): number {
     if (analyses.length < 2) return 0;
 
     const sorted = analyses.sort((a, b) =>

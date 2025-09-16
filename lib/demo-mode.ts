@@ -282,7 +282,7 @@ export class DemoModeManager {
     return recommendations
   }
 
-  simulateGitHubPR(analysis: AnalysisResult): Promise<{ prUrl: string; prNumber: number }> {
+  simulateGitHubPR(_analysis: AnalysisResult): Promise<{ prUrl: string; prNumber: number }> {
     return new Promise((resolve) => {
       setTimeout(() => {
         const prNumber = Math.floor(Math.random() * 1000) + 1

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { toast } from 'react-hot-toast'
 
 interface ServiceWorkerProviderProps {
@@ -85,7 +85,7 @@ export default function ServiceWorkerProvider({ children }: ServiceWorkerProvide
     }
   }
 
-  const preloadCriticalResources = () => {
+  const preloadCriticalResources = useCallback(() => {
     if (registration && registration.active) {
       const criticalUrls = [
         '/',
@@ -99,14 +99,14 @@ export default function ServiceWorkerProvider({ children }: ServiceWorkerProvide
         urls: criticalUrls
       })
     }
-  }
+  }, [registration])
 
   // Preload critical resources when online
   useEffect(() => {
     if (isOnline && registration) {
       preloadCriticalResources()
     }
-  }, [isOnline, registration])
+  }, [isOnline, registration, preloadCriticalResources])
 
   return (
     <>

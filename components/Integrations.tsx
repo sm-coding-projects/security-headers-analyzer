@@ -9,19 +9,14 @@ import {
   Chrome,
   Settings,
   Copy,
-  ExternalLink,
-  CheckCircle,
-  AlertCircle,
   Code,
   Play,
-  Download,
   Globe,
   Bell,
   Shield,
   Zap
 } from 'lucide-react';
 import * as Tabs from '@radix-ui/react-tabs';
-import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
 import { toast } from 'react-hot-toast';
 
@@ -33,7 +28,7 @@ interface Integration {
   id: string;
   name: string;
   description: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   category: 'communication' | 'cicd' | 'monitoring' | 'browser';
   status: 'available' | 'configured' | 'coming_soon';
   difficulty: 'easy' | 'medium' | 'advanced';
@@ -104,7 +99,6 @@ const INTEGRATIONS: Integration[] = [
 
 export default function Integrations({ isDarkMode = false }: IntegrationsProps) {
   const [activeTab, setActiveTab] = useState('overview');
-  const [selectedIntegration, setSelectedIntegration] = useState<string | null>(null);
   const [webhookConfig, setWebhookConfig] = useState<WebhookConfig>({
     url: '',
     events: [],
@@ -248,7 +242,7 @@ ${score < 70 ? '⚠️ *Action Required:* Security score is below recommended th
       // This would normally send to Slack
       toast.success('Test message sent to Slack!');
       console.log('Test Slack message:', testMessage);
-    } catch (error) {
+    } catch {
       toast.error('Failed to send test message');
     }
   };
@@ -265,7 +259,7 @@ ${score < 70 ? '⚠️ *Action Required:* Security score is below recommended th
       // This would normally send to the webhook endpoint
       toast.success('Test webhook sent successfully!');
       console.log('Test webhook payload:', testPayload);
-    } catch (error) {
+    } catch {
       toast.error('Failed to send test webhook');
     }
   };

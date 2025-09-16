@@ -16,7 +16,7 @@ export class SecurityHeaderAnalyzer {
     };
   }
 
-  analyzeHeaders(headers: Record<string, string>) {
+  analyzeHeaders(_headers: Record<string, string>) {
     // Implementation would go here
     return {
       score: 0,
@@ -26,12 +26,12 @@ export class SecurityHeaderAnalyzer {
     };
   }
 
-  calculateScore(headers: any) {
+  calculateScore(_headers: Record<string, unknown>) {
     // Implementation would go here
     return 0;
   }
 
-  generateRecommendations(analysis: any) {
+  generateRecommendations(_analysis: Record<string, unknown>) {
     // Implementation would go here
     return [];
   }

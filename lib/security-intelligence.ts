@@ -406,7 +406,7 @@ module.exports = {
   private customizeRecommendation(
     base: SmartRecommendation,
     framework?: string,
-    type: 'missing' | 'misconfigured' = 'missing'
+    _type: 'missing' | 'misconfigured' = 'missing'
   ): SmartRecommendation {
     const customized = { ...base };
 

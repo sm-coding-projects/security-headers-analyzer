@@ -4,12 +4,12 @@
 export class GitHubAutoFixer {
   constructor(private token: string) {}
 
-  async authenticate(token: string) {
+  async authenticate(_token: string) {
     // Implementation would go here
     return true;
   }
 
-  detectRepository(url: string) {
+  detectRepository(_url: string) {
     // Implementation would go here
     return {
       owner: 'test-owner',
@@ -17,12 +17,12 @@ export class GitHubAutoFixer {
     };
   }
 
-  async verifyRepositoryAccess(repoInfo: any) {
+  async verifyRepositoryAccess(_repoInfo: Record<string, unknown>) {
     // Implementation would go here
     return true;
   }
 
-  async createSecurityHeadersPR(fixes: any[], repoInfo: any, options?: any) {
+  async createSecurityHeadersPR(_fixes: unknown[], _repoInfo: Record<string, unknown>, _options?: Record<string, unknown>) {
     // Implementation would go here
     return {
       success: true,
@@ -33,13 +33,13 @@ export class GitHubAutoFixer {
     };
   }
 
-  generateSecurityHeadersCode(fixes: any[], framework: string) {
+  generateSecurityHeadersCode(_fixes: unknown[], _framework: string) {
     // Implementation would go here
     return '// Generated code';
   }
 }
 
-export function convertSecurityHeadersToFixes(headers: any[]) {
+export function convertSecurityHeadersToFixes(_headers: unknown[]) {
   // Implementation would go here
   return [];
 }

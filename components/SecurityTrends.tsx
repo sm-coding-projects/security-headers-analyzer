@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, Calendar, BarChart3, Filter, Download } from 'lucide-react';
+import { TrendingUp, TrendingDown, Calendar, BarChart3, Download } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import clsx from 'clsx';
 import * as Tabs from '@radix-ui/react-tabs';
@@ -100,7 +100,7 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
     };
 
     loadHistoricalData();
-  }, []);
+  }, [generateSampleData]);
 
   useEffect(() => {
     // Add current analysis to trend data
@@ -123,7 +123,7 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
     }
   }, [currentAnalysis]);
 
-  const generateSampleData = (): TrendData[] => {
+  const generateSampleData = useCallback((): TrendData[] => {
     const data: TrendData[] = [];
     const now = new Date();
 
@@ -147,7 +147,7 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
     }
 
     return data;
-  };
+  }, []);
 
   const getGradeFromScore = (score: number): string => {
     if (score >= 95) return 'A+';
@@ -219,7 +219,7 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
         <div className="flex items-center gap-2">
           <select
             value={selectedTimeframe}
-            onChange={(e) => setSelectedTimeframe(e.target.value as any)}
+            onChange={(e) => setSelectedTimeframe(e.target.value as '7d' | '30d' | '90d' | '1y')}
             className={clsx('px-3 py-2 rounded-lg border text-sm', {
               'bg-gray-800 border-gray-600 text-white': isDarkMode,
               'bg-white border-gray-300 text-gray-900': !isDarkMode
@@ -449,7 +449,7 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
             })}>
               <h3 className="text-lg font-semibold mb-4">Your Performance vs Industry</h3>
               <div className="space-y-4">
-                {INDUSTRY_AVERAGES.map((industry, index) => {
+                {INDUSTRY_AVERAGES.map((industry) => {
                   const yourScore = filteredData[0]?.score || 0;
                   const diff = yourScore - industry.averageScore;
                   return (

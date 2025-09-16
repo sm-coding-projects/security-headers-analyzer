@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Download, Play, Pause, X, AlertCircle, CheckCircle, Clock, BarChart3, FileText, Grid } from 'lucide-react';
+import { Upload, Download, Play, Pause, X, AlertCircle, CheckCircle, Clock, FileText } from 'lucide-react';
 import * as Progress from '@radix-ui/react-progress';
 import * as Tabs from '@radix-ui/react-tabs';
 import clsx from 'clsx';
@@ -26,7 +25,7 @@ interface UrlAnalysis {
 
 interface BatchAnalyzerProps {
   isDarkMode?: boolean;
-  onAnalyze?: (url: string) => Promise<any>;
+  onAnalyze?: (url: string) => Promise<{ score?: number; grade?: string; headers?: { found: number; missing: number; misconfigured: number }; framework?: string }>;
 }
 
 interface BatchResults {
@@ -47,7 +46,7 @@ export default function BatchAnalyzer({ isDarkMode = false, onAnalyze }: BatchAn
   const [batchResults, setBatchResults] = useState<BatchResults | null>(null);
   const [activeTab, setActiveTab] = useState('upload');
   const [concurrency, setConcurrency] = useState(3);
-  const [delay, setDelay] = useState(1000); // ms between requests
+  const [delay] = useState(1000); // ms between requests
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const startTimeRef = useRef<number>(0);
@@ -109,7 +108,7 @@ export default function BatchAnalyzer({ isDarkMode = false, onAnalyze }: BatchAn
         setActiveTab('batch');
         toast.success(`Loaded ${urlAnalyses.length} URLs for analysis`);
 
-      } catch (error) {
+      } catch {
         toast.error('Failed to parse file. Please check the format.');
       }
     };
@@ -268,7 +267,7 @@ export default function BatchAnalyzer({ isDarkMode = false, onAnalyze }: BatchAn
     }
   };
 
-  const simulateAnalysis = async (url: string) => {
+  const simulateAnalysis = async (_url: string) => {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
 
