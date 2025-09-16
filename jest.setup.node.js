@@ -1,16 +1,11 @@
-import '@testing-library/jest-dom'
-import { TextEncoder, TextDecoder } from 'util'
+// Setup for Node.js test environment specifically for API route tests
+const { TextEncoder, TextDecoder } = require('util')
 
-// Polyfill for Web APIs in Node.js environment
+// Polyfill Web APIs for Node.js environment
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder
 
-// Mock global fetch and related Web APIs
-if (!global.fetch) {
-  global.fetch = jest.fn()
-}
-
-// Mock Request class for Next.js compatibility
+// Mock Request class before any Next.js imports
 if (!global.Request) {
   global.Request = class Request {
     constructor(input, init = {}) {
@@ -74,7 +69,7 @@ if (!global.Request) {
   }
 }
 
-// Mock Response class for Next.js compatibility
+// Mock Response class
 if (!global.Response) {
   global.Response = class Response {
     constructor(body, init = {}) {
@@ -116,7 +111,7 @@ if (!global.Response) {
   }
 }
 
-// Mock Headers class for Web API compatibility
+// Mock Headers class
 if (!global.Headers) {
   global.Headers = class Headers {
     constructor(init = {}) {
@@ -166,7 +161,7 @@ if (!global.Headers) {
   }
 }
 
-// Mock URL and URLSearchParams for Node.js environment
+// Mock other Web APIs
 if (!global.URL) {
   global.URL = require('url').URL
 }
@@ -175,47 +170,9 @@ if (!global.URLSearchParams) {
   global.URLSearchParams = require('url').URLSearchParams
 }
 
-// Mock ReadableStream for Node.js environment
-if (!global.ReadableStream) {
-  global.ReadableStream = class ReadableStream {
-    constructor() {
-      // Basic mock implementation
-    }
-  }
+if (!global.fetch) {
+  global.fetch = jest.fn()
 }
 
-// Mock Next.js navigation hooks
-jest.mock('next/navigation', () => ({
-  useRouter() {
-    return {
-      push: jest.fn(),
-      replace: jest.fn(),
-      prefetch: jest.fn(),
-      back: jest.fn(),
-      forward: jest.fn(),
-      refresh: jest.fn(),
-    }
-  },
-  useSearchParams() {
-    return new URLSearchParams()
-  },
-  usePathname() {
-    return ''
-  },
-}))
-
-// Mock crypto for Node.js environment
-if (!global.crypto) {
-  global.crypto = {
-    randomUUID: () => {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        const r = Math.random() * 16 | 0
-        const v = c === 'x' ? r : (r & 0x3 | 0x8)
-        return v.toString(16)
-      })
-    }
-  }
-}
-
-// Mock environment variables
+// Environment variables
 process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000'
