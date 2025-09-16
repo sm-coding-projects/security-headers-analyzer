@@ -167,12 +167,14 @@ if (!global.Headers) {
 }
 
 // Mock URL and URLSearchParams for Node.js environment
+import { URL, URLSearchParams } from 'url'
+
 if (!global.URL) {
-  global.URL = require('url').URL
+  global.URL = URL
 }
 
 if (!global.URLSearchParams) {
-  global.URLSearchParams = require('url').URLSearchParams
+  global.URLSearchParams = URLSearchParams
 }
 
 // Mock ReadableStream for Node.js environment

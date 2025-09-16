@@ -1,5 +1,5 @@
 // Setup for Node.js test environment specifically for API route tests
-const { TextEncoder, TextDecoder } = require('util')
+import { TextEncoder, TextDecoder } from 'util'
 
 // Polyfill Web APIs for Node.js environment
 global.TextEncoder = TextEncoder
@@ -162,12 +162,14 @@ if (!global.Headers) {
 }
 
 // Mock other Web APIs
+import { URL, URLSearchParams } from 'url'
+
 if (!global.URL) {
-  global.URL = require('url').URL
+  global.URL = URL
 }
 
 if (!global.URLSearchParams) {
-  global.URLSearchParams = require('url').URLSearchParams
+  global.URLSearchParams = URLSearchParams
 }
 
 if (!global.fetch) {
