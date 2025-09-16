@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GitHubIntegration } from '@/lib/github-integration';
+import { GitHubAutoFixer, convertSecurityHeadersToFixes } from '@/lib/github-integration';
 import { PRResponse, GitHubPRRequest, SecurityHeader } from '@/types/security';
 
 export async function POST(request: NextRequest) {
@@ -32,29 +32,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(response, { status: 400 });
     }
 
-    // Initialize GitHub integration
-    const github = new GitHubIntegration(githubToken);
+    // Initialize GitHub auto-fixer
+    const github = new GitHubAutoFixer(githubToken);
 
-    // Validate repository access
-    const hasAccess = await github.validateRepositoryAccess(repoUrl);
-    if (!hasAccess) {
+    // Detect repository information
+    const repoInfo = github.detectRepository(repoUrl);
+    if (!repoInfo) {
       const response: PRResponse = {
         success: false,
-        error: 'Cannot access repository. Please check the URL and your permissions.',
+        error: 'Invalid repository URL format',
       };
-      return NextResponse.json(response, { status: 403 });
+      return NextResponse.json(response, { status: 400 });
     }
 
-    // Create PR with security headers configuration
-    const prRequest: GitHubPRRequest = {
-      repoUrl,
-      headers,
-      title: title || 'Security Headers Configuration - Auto-Generated Fix',
-      body: prBody || generatePRBody(headers),
-      branch: branch || `security-headers-fix-${Date.now()}`,
-    };
+    // Convert security headers to fixes
+    const fixes = convertSecurityHeadersToFixes(headers);
+    if (fixes.length === 0) {
+      const response: PRResponse = {
+        success: false,
+        error: 'No security header fixes needed',
+      };
+      return NextResponse.json(response, { status: 400 });
+    }
 
-    const result = await github.createSecurityHeadersPR(prRequest);
+    // Create PR with security headers fixes
+    const result = await github.createSecurityHeadersPR(fixes, repoInfo, {
+      title: title || '🔒 Add missing security headers',
+      branchName: branch,
+    });
 
     return NextResponse.json(result, {
       status: result.success ? 200 : 400
