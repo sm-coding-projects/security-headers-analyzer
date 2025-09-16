@@ -281,11 +281,9 @@ export const screenReader = {
   }),
 
   // Progress indicator
-  progress: (value?: number, max = 100, label?: string): AriaAttributes => ({
+  progress: (value?: number, _max = 100, label?: string): AriaAttributes & { role: string } => ({
     role: 'progressbar',
     ...(value !== undefined && { 'aria-valuenow': value }),
-    'aria-valuemin': 0,
-    'aria-valuemax': max,
     ...(label && { 'aria-label': label })
   }),
 
@@ -387,9 +385,9 @@ export const a11yTesting = {
 
     const isNativelyInteractive = interactiveElements.includes(tagName);
     const hasInteractiveRole = role && interactiveRoles.includes(role);
-    const hasValidTabIndex = tabIndex === null || parseInt(tabIndex) >= 0;
+    const hasValidTabIndex = tabIndex === null || (tabIndex !== null && !isNaN(parseInt(tabIndex)) && parseInt(tabIndex) >= 0);
 
-    return (isNativelyInteractive || hasInteractiveRole) && hasValidTabIndex;
+    return Boolean((isNativelyInteractive || hasInteractiveRole) && hasValidTabIndex);
   },
 
   // Check color contrast (requires a color contrast library in real implementation)

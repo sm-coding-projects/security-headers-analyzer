@@ -64,7 +64,7 @@ export default function InteractivePlayground({ isDarkMode = false }: Playground
     }))
   );
   const [testUrl, setTestUrl] = useState('https://example.com');
-  const [testResults, setTestResults] = useState<{ csp?: { policy: string; score: number; violations: number }; hsts?: { header: string; score: number; maxAge: number }; permissions?: { header: string; score: number; restrictedFeatures: number } } | null>(null);
+  const [testResults, setTestResults] = useState<{ csp?: { policy: string; score: number; issues: string[]; recommendations: string[] }; hsts?: { header: string; score: number; preloadEligible: boolean }; permissions?: { header: string; score: number; restrictedFeatures: number } } | null>(null);
   const [isTestingHeaders, setIsTestingHeaders] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -711,16 +711,16 @@ export default function InteractivePlayground({ isDarkMode = false }: Playground
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium">CSP Score</span>
                       <span className={clsx('font-bold', {
-                        'text-green-500': testResults.csp.score >= 80,
-                        'text-yellow-500': testResults.csp.score >= 60,
-                        'text-red-500': testResults.csp.score < 60
+                        'text-green-500': (testResults.csp?.score ?? 0) >= 80,
+                        'text-yellow-500': (testResults.csp?.score ?? 0) >= 60,
+                        'text-red-500': (testResults.csp?.score ?? 0) < 60
                       })}>
-                        {testResults.csp.score}/100
+                        {testResults.csp?.score}/100
                       </span>
                     </div>
-                    {testResults.csp.issues.length > 0 && (
+                    {(testResults.csp?.issues.length ?? 0) > 0 && (
                       <div className="text-sm text-yellow-600 dark:text-yellow-400">
-                        {testResults.csp.issues.map((issue: string, index: number) => (
+                        {testResults.csp?.issues.map((issue: string, index: number) => (
                           <div key={index} className="flex items-start gap-1">
                             <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
                             {issue}
@@ -737,14 +737,14 @@ export default function InteractivePlayground({ isDarkMode = false }: Playground
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium">HSTS Score</span>
                       <span className={clsx('font-bold', {
-                        'text-green-500': testResults.hsts.score >= 80,
-                        'text-yellow-500': testResults.hsts.score >= 60,
-                        'text-red-500': testResults.hsts.score < 60
+                        'text-green-500': (testResults.hsts?.score ?? 0) >= 80,
+                        'text-yellow-500': (testResults.hsts?.score ?? 0) >= 60,
+                        'text-red-500': (testResults.hsts?.score ?? 0) < 60
                       })}>
-                        {testResults.hsts.score}/100
+                        {testResults.hsts?.score}/100
                       </span>
                     </div>
-                    {testResults.hsts.preloadEligible && (
+                    {testResults.hsts?.preloadEligible && (
                       <div className="text-sm text-green-600 dark:text-green-400 flex items-center gap-1">
                         <CheckCircle className="h-3 w-3" />
                         Preload eligible
@@ -752,7 +752,7 @@ export default function InteractivePlayground({ isDarkMode = false }: Playground
                     )}
                   </div>
 
-                  {testResults.permissions.header && (
+                  {testResults.permissions?.header && (
                     <div className={clsx('p-3 rounded-lg', {
                       'bg-gray-700': isDarkMode,
                       'bg-gray-50': !isDarkMode
@@ -760,7 +760,7 @@ export default function InteractivePlayground({ isDarkMode = false }: Playground
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-medium">Permissions Policy</span>
                         <span className="font-bold text-blue-500">
-                          {testResults.permissions.restrictedFeatures} features restricted
+                          {testResults.permissions?.restrictedFeatures} features restricted
                         </span>
                       </div>
                     </div>

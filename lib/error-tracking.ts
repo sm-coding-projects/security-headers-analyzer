@@ -49,8 +49,10 @@ class ErrorTracker {
         severity: 'high',
         context: {
           url: event.filename,
-          line: event.lineno,
-          column: event.colno
+          additionalData: {
+            line: event.lineno,
+            column: event.colno
+          }
         }
       })
     })
@@ -61,7 +63,9 @@ class ErrorTracker {
         type: 'javascript',
         severity: 'high',
         context: {
-          promiseRejection: true
+          additionalData: {
+            promiseRejection: true
+          }
         }
       })
     })
@@ -77,8 +81,10 @@ class ErrorTracker {
             severity: response.status >= 500 ? 'high' : 'medium',
             context: {
               url: args[0].toString(),
-              status: response.status,
-              method: args[1]?.method || 'GET'
+              additionalData: {
+                status: response.status,
+                method: args[1]?.method || 'GET'
+              }
             }
           })
         }
@@ -89,7 +95,9 @@ class ErrorTracker {
           severity: 'high',
           context: {
             url: args[0].toString(),
-            method: args[1]?.method || 'GET'
+            additionalData: {
+              method: args[1]?.method || 'GET'
+            }
           }
         })
         throw error
@@ -169,7 +177,7 @@ class ErrorTracker {
           custom_map: {
             error_id: errorEvent.id,
             error_type: errorEvent.type,
-            session_id: errorEvent.context.sessionId
+            session_id: errorEvent.context.sessionId || this.sessionId
           }
         })
       }
@@ -245,7 +253,12 @@ export const captureApiError = (error: Error, endpoint: string, method = 'GET') 
   return errorTracker.captureError(error, {
     type: 'api',
     severity: 'high',
-    context: { endpoint, method }
+    context: {
+      additionalData: {
+        endpoint,
+        method
+      }
+    }
   })
 }
 
@@ -253,7 +266,12 @@ export const captureValidationError = (error: Error, field: string, value?: unkn
   return errorTracker.captureError(error, {
     type: 'validation',
     severity: 'low',
-    context: { field, value: typeof value === 'string' ? value : JSON.stringify(value) }
+    context: {
+      additionalData: {
+        field,
+        value: typeof value === 'string' ? value : JSON.stringify(value)
+      }
+    }
   })
 }
 
@@ -277,6 +295,10 @@ export const captureComponentError = (error: Error, componentStack: string) => {
   return errorTracker.captureError(new ErrorBoundary(error.message, componentStack), {
     type: 'javascript',
     severity: 'high',
-    context: { componentStack }
+    context: {
+      additionalData: {
+        componentStack
+      }
+    }
   })
 }

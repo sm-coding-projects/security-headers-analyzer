@@ -160,15 +160,15 @@ export const validateForm = (data: Record<string, unknown>, rules: FormValidatio
         fieldErrors.push(`${field} is required`);
       }
 
-      if (value && rule.minLength && value.length < rule.minLength) {
+      if (value && rule.minLength && typeof value === 'string' && value.length < rule.minLength) {
         fieldErrors.push(`${field} must be at least ${rule.minLength} characters`);
       }
 
-      if (value && rule.maxLength && value.length > rule.maxLength) {
+      if (value && rule.maxLength && typeof value === 'string' && value.length > rule.maxLength) {
         fieldErrors.push(`${field} must be no more than ${rule.maxLength} characters`);
       }
 
-      if (value && rule.pattern && !rule.pattern.test(value)) {
+      if (value && rule.pattern && typeof value === 'string' && !rule.pattern.test(value)) {
         fieldErrors.push(`${field} format is invalid`);
       }
 

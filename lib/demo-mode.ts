@@ -1,4 +1,4 @@
-import { SecurityHeaders, AnalysisResult } from '@/types/security'
+import { AnalysisResult, Recommendation } from '@/types/security'
 
 export interface DemoSite {
   id: string
@@ -194,17 +194,26 @@ export class DemoModeManager {
       url: site.url,
       score: site.expectedScore,
       grade: this.getGrade(site.expectedScore),
-      headers: site.mockHeaders,
-      analysis: this.generateMockHeaderAnalysis(site),
+      headers: {
+        found: [],
+        missing: [],
+        misconfigured: []
+      },
       recommendations: this.generateMockRecommendations(site),
-      timestamp: new Date().toISOString(),
-      scanDuration: Math.random() * 2000 + 500 // Random duration between 500-2500ms
+      fixes: {
+        nginx: '',
+        apache: '',
+        expressjs: '',
+        nextjs: '',
+        cloudflare: ''
+      },
+      timestamp: new Date().toISOString()
     }
 
     return mockResult
   }
 
-  private getGrade(score: number): string {
+  private getGrade(score: number): 'A+' | 'A' | 'B' | 'C' | 'D' | 'F' {
     if (score >= 90) return 'A+'
     if (score >= 80) return 'A'
     if (score >= 70) return 'B'
@@ -213,8 +222,8 @@ export class DemoModeManager {
     return 'F'
   }
 
-  private generateMockHeaderAnalysis(site: DemoSite): SecurityHeaders {
-    const baseAnalysis: SecurityHeaders = {
+  private generateMockHeaderAnalysis(site: DemoSite): any {
+    const baseAnalysis: any = {
       strictTransportSecurity: {
         present: !!site.mockHeaders['strict-transport-security'],
         value: site.mockHeaders['strict-transport-security'] || null,
@@ -260,23 +269,49 @@ export class DemoModeManager {
     return baseAnalysis
   }
 
-  private generateMockRecommendations(site: DemoSite): string[] {
-    const recommendations: string[] = []
+  private generateMockRecommendations(site: DemoSite): Recommendation[] {
+    const recommendations: Recommendation[] = []
 
     if (!site.mockHeaders['strict-transport-security']) {
-      recommendations.push('Implement HTTP Strict Transport Security (HSTS)')
+      recommendations.push({
+        header: 'Strict-Transport-Security',
+        severity: 'high',
+        issue: 'HSTS header is missing',
+        solution: 'Implement HTTP Strict Transport Security (HSTS)',
+        priority: 1
+      })
     }
 
     if (!site.mockHeaders['content-security-policy']) {
-      recommendations.push('Add Content Security Policy (CSP) header')
+      recommendations.push({
+        header: 'Content-Security-Policy',
+        severity: 'high',
+        issue: 'CSP header is missing',
+        solution: 'Add Content Security Policy (CSP) header',
+        priority: 2
+      })
     }
 
     if (!site.mockHeaders['x-frame-options']) {
-      recommendations.push('Configure X-Frame-Options header')
+      recommendations.push({
+        header: 'X-Frame-Options',
+        severity: 'medium',
+        issue: 'X-Frame-Options header is missing',
+        solution: 'Configure X-Frame-Options header',
+        priority: 3
+      })
     }
 
     if (site.commonIssues.length > 0) {
-      recommendations.push(...site.commonIssues.map(issue => `Fix: ${issue}`))
+      site.commonIssues.forEach((issue, index) => {
+        recommendations.push({
+          header: 'General',
+          severity: 'medium',
+          issue: issue,
+          solution: `Fix: ${issue}`,
+          priority: 4 + index
+        })
+      })
     }
 
     return recommendations

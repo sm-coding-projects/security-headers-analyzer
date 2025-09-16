@@ -492,7 +492,7 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
                       cx="50%"
                       cy="50%"
                       outerRadius={80}
-                      label={({ name, percentage }) => `${name} (${percentage}%)`}
+                      label={({ name, percent }: any) => `${name} (${(percent * 100).toFixed(1)}%)`}
                     >
                       {commonMissing.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
@@ -518,7 +518,7 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
                     <div className="flex-1">
                       <p className="font-medium text-sm">{header.name}</p>
                       <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                        Missing in {header.percentage}% of analyses - High priority for implementation
+                        Missing in {Math.round((header.count / getFilteredData().length) * 100)}% of analyses - High priority for implementation
                       </p>
                     </div>
                   </div>

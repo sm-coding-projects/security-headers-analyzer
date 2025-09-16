@@ -13,15 +13,13 @@ const mockOctokit = {
     repos: {
       get: jest.fn(),
       listBranches: jest.fn(),
-      getBranch: jest.fn()
+      getBranch: jest.fn(),
+      getContent: jest.fn(),
+      createOrUpdateFileContents: jest.fn()
     },
     git: {
       createRef: jest.fn(),
       getRef: jest.fn()
-    },
-    repos: {
-      getContent: jest.fn(),
-      createOrUpdateFileContents: jest.fn()
     },
     pulls: {
       create: jest.fn()

@@ -473,7 +473,12 @@ export class SecurityMonitoringService {
       };
     } catch (error) {
       console.error('Failed to get session data:', error);
-      return {};
+      return {
+        sessionId: this.generateSessionId(),
+        startTime: new Date().toISOString(),
+        featuresUsed: {},
+        lastActivity: new Date().toISOString()
+      };
     }
   }
 

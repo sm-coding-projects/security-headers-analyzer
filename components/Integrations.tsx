@@ -116,6 +116,7 @@ export default function Integrations({ isDarkMode = false }: IntegrationsProps) 
       notifyOnDegradation: true
     }
   });
+  const [_selectedIntegration, setSelectedIntegration] = useState<string | null>(null);
 
   const copyToClipboard = async (text: string, label: string) => {
     try {

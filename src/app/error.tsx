@@ -17,8 +17,10 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
       type: 'javascript',
       severity: 'high',
       context: {
-        digest: error.digest,
-        boundary: 'app-error-boundary'
+        additionalData: {
+          digest: error.digest,
+          boundary: 'app-error-boundary'
+        }
       }
     })
   }, [error])
