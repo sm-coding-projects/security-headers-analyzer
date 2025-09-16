@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { SecurityAnalysis } from '@/types/security';
+import { AnalysisResult } from '@/types/security';
 import {
   CheckCircle,
   XCircle,
@@ -16,7 +16,7 @@ import {
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
 
 interface HeadersReportProps {
-  analysis: SecurityAnalysis;
+  analysis: AnalysisResult;
   onCreatePR?: () => void;
   onDownloadReport?: () => void;
 }
@@ -74,12 +74,14 @@ export default function HeadersReport({ analysis, onCreatePR, onDownloadReport }
     }
   };
 
+  const allHeaders = [...analysis.headers.found, ...analysis.headers.missing, ...analysis.headers.misconfigured];
   const pieData = [
-    { name: 'Passed', value: analysis.summary.passed, color: COLORS.passed },
-    { name: 'Failed', value: analysis.summary.failed, color: COLORS.failed },
+    { name: 'Found', value: analysis.headers.found.length, color: COLORS.passed },
+    { name: 'Missing', value: analysis.headers.missing.length, color: COLORS.failed },
+    { name: 'Misconfigured', value: analysis.headers.misconfigured.length, color: COLORS.warning },
   ];
 
-  const barData = analysis.headers.map(header => ({
+  const barData = allHeaders.map(header => ({
     name: header.name.replace(/^X-/, '').substring(0, 15) + (header.name.length > 15 ? '...' : ''),
     score: Math.round((header.score / 20) * 100), // Normalize to 100
     fullName: header.name,
@@ -99,8 +101,8 @@ export default function HeadersReport({ analysis, onCreatePR, onDownloadReport }
             </div>
           </div>
           <div className="text-right">
-            <div className={`text-4xl font-bold ${getScoreColor(analysis.overallScore)}`}>
-              {analysis.overallScore}/100
+            <div className={`text-4xl font-bold ${getScoreColor(analysis.score)}`}>
+              {analysis.score}/100
             </div>
             <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getGradeColor(analysis.grade)}`}>
               Grade: {analysis.grade}
@@ -132,14 +134,18 @@ export default function HeadersReport({ analysis, onCreatePR, onDownloadReport }
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="flex justify-center space-x-6 mt-4">
+            <div className="flex justify-center space-x-4 mt-4">
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                <span className="text-sm">Passed ({analysis.summary.passed})</span>
+                <span className="text-sm">Found ({analysis.headers.found.length})</span>
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                <span className="text-sm">Failed ({analysis.summary.failed})</span>
+                <span className="text-sm">Missing ({analysis.headers.missing.length})</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                <span className="text-sm">Misconfigured ({analysis.headers.misconfigured.length})</span>
               </div>
             </div>
           </div>
@@ -203,7 +209,7 @@ export default function HeadersReport({ analysis, onCreatePR, onDownloadReport }
         </div>
 
         <div className="divide-y divide-gray-200">
-          {analysis.headers.map((header) => {
+          {allHeaders.map((header) => {
             const isExpanded = expandedHeaders.has(header.name);
             const isPresent = header.present;
             const maxScore = 20; // Assuming max weight is 20 from your rules

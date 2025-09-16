@@ -21,6 +21,48 @@ export interface SecurityAnalysis {
   };
 }
 
+export interface AnalysisResult {
+  url: string;
+  score: number;
+  grade: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F';
+  headers: {
+    found: SecurityHeader[];
+    missing: SecurityHeader[];
+    misconfigured: SecurityHeader[];
+  };
+  recommendations: Recommendation[];
+  fixes: {
+    nginx: string;
+    apache: string;
+    expressjs: string;
+    nextjs: string;
+    cloudflare: string;
+  };
+  framework?: string;
+  timestamp: string;
+}
+
+export interface Recommendation {
+  header: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  issue: string;
+  solution: string;
+  priority: number;
+}
+
+export interface CSPDirective {
+  directive: string;
+  sources: string[];
+  isUnsafe: boolean;
+}
+
+export interface HSTSConfig {
+  maxAge: number;
+  includeSubDomains: boolean;
+  preload: boolean;
+  isEligible: boolean;
+}
+
 export interface HeaderRule {
   name: string;
   required: boolean;
@@ -42,7 +84,7 @@ export interface GitHubPRRequest {
 
 export interface AnalysisResponse {
   success: boolean;
-  data?: SecurityAnalysis;
+  data?: AnalysisResult;
   error?: string;
 }
 

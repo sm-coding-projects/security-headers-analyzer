@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { toast, Toaster } from 'react-hot-toast';
 import URLInput from '@/components/URLInput';
 import HeadersReport from '@/components/HeadersReport';
-import { SecurityAnalysis, AnalysisResponse, PRResponse } from '@/types/security';
+import { AnalysisResult, AnalysisResponse, PRResponse } from '@/types/security';
 import { generateFixRecommendations } from '@/lib/security-headers';
 
 export default function Home() {
-  const [analysis, setAnalysis] = useState<SecurityAnalysis | null>(null);
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isCreatingPR, setIsCreatingPR] = useState(false);
 
@@ -77,8 +77,8 @@ export default function Home() {
         },
         body: JSON.stringify({
           repoUrl,
-          headers: analysis.headers,
-          title: `Security Headers Fix - Improve security score from ${analysis.overallScore}/100`,
+          headers: [...analysis.headers.found, ...analysis.headers.missing, ...analysis.headers.misconfigured],
+          title: `Security Headers Fix - Improve security score from ${analysis.score}/100`,
           githubToken,
         }),
       });
