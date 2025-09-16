@@ -305,15 +305,26 @@ export default function SecurityDashboard() {
             </div>
             <h1 className="text-xl font-bold">Security Headers Analyzer</h1>
           </div>
-          <button
-            onClick={toggleDarkMode}
-            className={clsx('p-2 rounded-lg transition-colors', {
-              'hover:bg-gray-700': isDarkMode,
-              'hover:bg-gray-100': !isDarkMode
-            })}
-          >
-            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </button>
+          <div className="flex items-center gap-4">
+            <a
+              href="/advanced"
+              className={clsx('px-3 py-2 rounded-lg transition-colors font-medium', {
+                'hover:bg-gray-700 text-gray-300': isDarkMode,
+                'hover:bg-gray-100 text-gray-700': !isDarkMode
+              })}
+            >
+              Advanced Tools
+            </a>
+            <button
+              onClick={toggleDarkMode}
+              className={clsx('p-2 rounded-lg transition-colors', {
+                'hover:bg-gray-700': isDarkMode,
+                'hover:bg-gray-100': !isDarkMode
+              })}
+            >
+              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
       </nav>
 
