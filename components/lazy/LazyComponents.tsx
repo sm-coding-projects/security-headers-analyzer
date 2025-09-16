@@ -19,25 +19,6 @@ export const LazyPricingPlans = dynamic(() => import('../PricingPlans'), {
   ssr: false
 })
 
-// export const LazyAdvancedAnalyzer = dynamic(() => import('../AdvancedAnalyzer'), {
-//   loading: () => <LoadingSpinner />,
-//   ssr: false
-// })
-
-// export const LazySecurityEducation = dynamic(() => import('../SecurityEducation'), {
-//   loading: () => <LoadingSpinner />,
-//   ssr: false
-// })
-
-// export const LazyContactForm = dynamic(() => import('../ContactForm'), {
-//   loading: () => <LoadingSpinner />,
-//   ssr: false
-// })
-
-// export const LazyDemoModeProvider = dynamic(() => import('../DemoModeProvider'), {
-//   loading: () => <LoadingSpinner />,
-//   ssr: false
-// })
 
 export const withSuspense = <P extends object>(
   Component: ComponentType<P>,

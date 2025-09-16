@@ -15,6 +15,7 @@ interface TrendData {
   missingHeaders: number;
   foundHeaders: number;
   framework?: string;
+  missingHeaderNames?: string[];
 }
 
 interface IndustryAverage {
@@ -94,31 +95,6 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
     return 'F';
   };
 
-  const generateSampleData = useCallback((): TrendData[] => {
-    const data: TrendData[] = [];
-    const now = new Date();
-
-    for (let i = 30; i >= 0; i--) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - i);
-
-      const baseScore = 60 + Math.random() * 30;
-      const trend = i < 15 ? (15 - i) * 2 : 0; // Improvement trend
-      const score = Math.min(100, Math.round(baseScore + trend + (Math.random() - 0.5) * 10));
-
-      data.push({
-        date: date.toISOString().split('T')[0],
-        score,
-        grade: getGradeFromScore(score),
-        url: `https://example-${i}.com`,
-        missingHeaders: Math.max(0, 8 - Math.floor(score / 15)),
-        foundHeaders: Math.floor(score / 15) + 2,
-        framework: ['nginx', 'apache', 'express.js', 'next.js'][Math.floor(Math.random() * 4)]
-      });
-    }
-
-    return data;
-  }, []);
 
   useEffect(() => {
     // Load historical data from localStorage
@@ -127,27 +103,26 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
       if (stored) {
         setTrendData(JSON.parse(stored));
       } else {
-        // Generate sample historical data for demo
-        const sampleData = generateSampleData();
-        setTrendData(sampleData);
-        localStorage.setItem('securityTrendsData', JSON.stringify(sampleData));
+        // Initialize with empty data - trends will populate as user analyzes URLs
+        setTrendData([]);
       }
     };
 
     loadHistoricalData();
-  }, [generateSampleData]);
+  }, []);
 
   useEffect(() => {
     // Add current analysis to trend data
-    if (currentAnalysis) {
+    if (currentAnalysis && currentAnalysis.headers) {
       const newEntry: TrendData = {
         date: new Date().toISOString().split('T')[0],
         score: currentAnalysis.score,
         grade: currentAnalysis.grade,
         url: currentAnalysis.url,
-        missingHeaders: currentAnalysis.headers.missing.length,
-        foundHeaders: currentAnalysis.headers.found.length,
-        framework: currentAnalysis.framework
+        missingHeaders: currentAnalysis.headers.missing?.length || 0,
+        foundHeaders: currentAnalysis.headers.found?.length || 0,
+        framework: currentAnalysis.framework,
+        missingHeaderNames: currentAnalysis.headers.missing?.map(h => h.name) || []
       };
 
       setTrendData(prev => {
@@ -184,15 +159,26 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
     const filtered = getFilteredData();
     const headerCount: Record<string, number> = {};
 
-    // This would normally come from actual analysis data
+    // Initialize all header counts to 0
     COMMON_MISSING_HEADERS.forEach(header => {
-      headerCount[header] = Math.floor(Math.random() * filtered.length);
+      headerCount[header] = 0;
+    });
+
+    // Count actual missing headers from real analysis data
+    filtered.forEach(entry => {
+      if (entry.missingHeaderNames) {
+        entry.missingHeaderNames.forEach(headerName => {
+          if (headerCount[headerName] !== undefined) {
+            headerCount[headerName]++;
+          }
+        });
+      }
     });
 
     return Object.entries(headerCount)
       .sort(([,a], [,b]) => b - a)
       .slice(0, 6)
-      .map(([name, count]) => ({ name, count, percentage: Math.round((count / filtered.length) * 100) }));
+      .map(([name, count]) => ({ name, count, percentage: filtered.length > 0 ? Math.round((count / filtered.length) * 100) : 0 }));
   };
 
   const scoreChange = getScoreChange();
@@ -374,39 +360,51 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
             'bg-white border-gray-200': !isDarkMode
           })}>
             <h3 className="text-lg font-semibold mb-4">Security Score Over Time</h3>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={filteredData.reverse()}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
-                  <XAxis
-                    dataKey="date"
-                    stroke={isDarkMode ? '#9ca3af' : '#6b7280'}
-                    fontSize={12}
-                  />
-                  <YAxis
-                    stroke={isDarkMode ? '#9ca3af' : '#6b7280'}
-                    fontSize={12}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-                      border: `1px solid ${isDarkMode ? '#374151' : '#e5e7eb'}`,
-                      borderRadius: '8px',
-                      color: isDarkMode ? '#ffffff' : '#000000'
-                    }}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="score"
-                    stroke="#3b82f6"
-                    strokeWidth={3}
-                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                    name="Security Score"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+            {filteredData.length === 0 ? (
+              <div className="h-80 flex items-center justify-center">
+                <div className="text-center">
+                  <BarChart3 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h4 className="text-lg font-medium text-gray-600 dark:text-gray-400 mb-2">No trend data available</h4>
+                  <p className="text-gray-500 dark:text-gray-500">
+                    Start analyzing URLs to build your security trends over time
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={filteredData.reverse()}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
+                    <XAxis
+                      dataKey="date"
+                      stroke={isDarkMode ? '#9ca3af' : '#6b7280'}
+                      fontSize={12}
+                    />
+                    <YAxis
+                      stroke={isDarkMode ? '#9ca3af' : '#6b7280'}
+                      fontSize={12}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+                        border: `1px solid ${isDarkMode ? '#374151' : '#e5e7eb'}`,
+                        borderRadius: '8px',
+                        color: isDarkMode ? '#ffffff' : '#000000'
+                      }}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="score"
+                      stroke="#3b82f6"
+                      strokeWidth={3}
+                      dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                      name="Security Score"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
         </Tabs.Content>
 

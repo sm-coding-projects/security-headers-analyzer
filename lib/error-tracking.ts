@@ -182,7 +182,7 @@ class ErrorTracker {
         })
       }
 
-      // Mock API call for demonstration
+      // Send error to API endpoint for logging
       await fetch('/api/errors', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

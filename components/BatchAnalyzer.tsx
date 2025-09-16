@@ -189,8 +189,8 @@ export default function BatchAnalyzer({ isDarkMode = false, onAnalyze }: BatchAn
       ));
 
       try {
-        // Simulate or call actual analysis
-        const result = onAnalyze ? await onAnalyze(urlAnalysis.url) : await simulateAnalysis(urlAnalysis.url);
+        // Use real analysis by calling the API endpoint
+        const result = onAnalyze ? await onAnalyze(urlAnalysis.url) : await callSecurityAnalysisAPI(urlAnalysis.url);
 
         completed++;
         setUrls(prev => prev.map(url =>
@@ -198,14 +198,10 @@ export default function BatchAnalyzer({ isDarkMode = false, onAnalyze }: BatchAn
             ? {
                 ...url,
                 status: 'completed' as const,
-                score: result.score || Math.floor(Math.random() * 100),
-                grade: result.grade || 'B',
+                score: result.score,
+                grade: result.grade,
                 timestamp: new Date().toISOString(),
-                headers: result.headers || {
-                  found: Math.floor(Math.random() * 10),
-                  missing: Math.floor(Math.random() * 5),
-                  misconfigured: Math.floor(Math.random() * 3)
-                },
+                headers: result.headers,
                 framework: result.framework
               }
             : url
@@ -267,24 +263,36 @@ export default function BatchAnalyzer({ isDarkMode = false, onAnalyze }: BatchAn
     }
   };
 
-  const simulateAnalysis = async (_url: string) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+  const callSecurityAnalysisAPI = async (url: string) => {
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url }),
+    });
 
-    // Simulate random failure
-    if (Math.random() < 0.1) {
-      throw new Error('Network timeout');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${response.status}: Failed to analyze ${url}`);
     }
 
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.error || 'Analysis failed');
+    }
+
+    const result = data.data;
     return {
-      score: 50 + Math.floor(Math.random() * 50),
-      grade: ['A+', 'A', 'B', 'C', 'D'][Math.floor(Math.random() * 5)],
+      score: result.score,
+      grade: result.grade,
       headers: {
-        found: 5 + Math.floor(Math.random() * 5),
-        missing: Math.floor(Math.random() * 8),
-        misconfigured: Math.floor(Math.random() * 3)
+        found: result.headers.found.length,
+        missing: result.headers.missing.length,
+        misconfigured: result.headers.misconfigured.length
       },
-      framework: ['nginx', 'apache', 'express.js', 'next.js'][Math.floor(Math.random() * 4)]
+      framework: result.framework
     };
   };
 

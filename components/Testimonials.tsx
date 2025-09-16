@@ -19,6 +19,8 @@ interface Metric {
   icon: React.ReactNode
 }
 
+// Note: These are example testimonials for demonstration purposes
+// Replace with real user feedback as it becomes available
 const testimonials: Testimonial[] = [
   {
     id: '1',

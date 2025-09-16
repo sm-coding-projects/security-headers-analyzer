@@ -6,6 +6,7 @@ import { Play, Copy, Download, AlertCircle, CheckCircle, Code, Eye, EyeOff, Zap,
 import * as Tabs from '@radix-ui/react-tabs';
 import clsx from 'clsx';
 import { toast } from 'react-hot-toast';
+import { SecurityHeaderAnalyzer } from '@/lib/security-headers';
 
 interface PlaygroundProps {
   isDarkMode?: boolean;
@@ -51,6 +52,7 @@ const PERMISSIONS_FEATURES = [
 export default function InteractivePlayground({ isDarkMode = false }: PlaygroundProps) {
   const [activeTab, setActiveTab] = useState('csp');
   const [cspDirectives, setCspDirectives] = useState<CSPDirective[]>(DEFAULT_CSP_DIRECTIVES);
+  const analyzer = new SecurityHeaderAnalyzer();
   const [hstsConfig, setHstsConfig] = useState<HSTSConfig>({
     maxAge: 31536000,
     includeSubDomains: true,
@@ -140,36 +142,37 @@ export default function InteractivePlayground({ isDarkMode = false }: Playground
     setIsTestingHeaders(true);
 
     try {
-      // Simulate testing the generated headers
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
       const cspPolicy = generateCSPPolicy();
       const hstsHeader = generateHSTSHeader();
       const permissionsHeader = generatePermissionsPolicyHeader();
 
-      // Simulate analysis results
+      // Use real validation functions from the security analyzer
+      const cspValidation = analyzer.validateCSP(cspPolicy);
+      const hstsValidation = analyzer.checkHSTSPreload(hstsHeader);
+
       const results = {
         csp: {
           policy: cspPolicy,
           score: calculateCSPScore(cspPolicy),
-          issues: analyzeCSPPolicy(cspPolicy),
-          recommendations: []
+          issues: cspValidation.issues,
+          recommendations: cspValidation.issues.map(issue => `Fix: ${issue}`)
         },
         hsts: {
           header: hstsHeader,
           score: calculateHSTSScore(hstsConfig),
-          preloadEligible: hstsConfig.maxAge >= 31536000 && hstsConfig.includeSubDomains && hstsConfig.preload
+          preloadEligible: hstsValidation.isEligible
         },
         permissions: {
           header: permissionsHeader,
-          score: permissionsHeader ? 85 : 0,
+          score: permissionsHeader ? Math.max(60, 60 + (permissionsPolicy.filter(p => p.enabled).length * 5)) : 0,
           restrictedFeatures: permissionsPolicy.filter(p => p.enabled).length
         }
       };
 
       setTestResults(results);
       toast.success('Header testing completed!');
-    } catch {
+    } catch (error) {
+      console.error('Header testing error:', error);
       toast.error('Failed to test headers');
     } finally {
       setIsTestingHeaders(false);
