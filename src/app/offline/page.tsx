@@ -29,24 +29,24 @@ export default function OfflinePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8 text-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white dark:bg-slate-800 rounded-lg shadow-xl p-8 text-center">
         <div className="mb-6">
           <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 ${
-            isOnline ? 'bg-green-100' : 'bg-red-100'
+            isOnline ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'
           }`}>
             {isOnline ? (
-              <Shield className="h-8 w-8 text-green-600" />
+              <Shield className="h-8 w-8 text-green-600 dark:text-green-400" />
             ) : (
-              <WifiOff className="h-8 w-8 text-red-600" />
+              <WifiOff className="h-8 w-8 text-red-600 dark:text-red-400" />
             )}
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             {isOnline ? 'Back Online!' : 'You\'re Offline'}
           </h1>
 
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
             {isOnline
               ? 'Your internet connection has been restored. You can now refresh to continue using the Security Headers Analyzer.'
               : 'It looks like you\'re not connected to the internet. Some features may be limited while offline.'
@@ -64,9 +64,9 @@ export default function OfflinePage() {
               Refresh Page
             </button>
           ) : (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-left">
-              <h3 className="font-semibold text-yellow-800 mb-2">Available Offline:</h3>
-              <ul className="text-sm text-yellow-700 space-y-1">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4 text-left">
+              <h3 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Available Offline:</h3>
+              <ul className="text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
                 <li>• View cached analysis results</li>
                 <li>• Browse security education content</li>
                 <li>• Read documentation and guides</li>
@@ -84,8 +84,8 @@ export default function OfflinePage() {
           </Link>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
+        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
+          <div className="flex items-center justify-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
             <div className="flex items-center">
               <div className={`w-2 h-2 rounded-full mr-2 ${
                 isOnline ? 'bg-green-500' : 'bg-red-500'

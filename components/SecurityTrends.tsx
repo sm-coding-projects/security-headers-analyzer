@@ -85,6 +85,41 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
   const [selectedSector, setSelectedSector] = useState<string>('Technology');
   const [activeTab, setActiveTab] = useState('trends');
 
+  const getGradeFromScore = (score: number): string => {
+    if (score >= 95) return 'A+';
+    if (score >= 85) return 'A';
+    if (score >= 75) return 'B';
+    if (score >= 65) return 'C';
+    if (score >= 50) return 'D';
+    return 'F';
+  };
+
+  const generateSampleData = useCallback((): TrendData[] => {
+    const data: TrendData[] = [];
+    const now = new Date();
+
+    for (let i = 30; i >= 0; i--) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+
+      const baseScore = 60 + Math.random() * 30;
+      const trend = i < 15 ? (15 - i) * 2 : 0; // Improvement trend
+      const score = Math.min(100, Math.round(baseScore + trend + (Math.random() - 0.5) * 10));
+
+      data.push({
+        date: date.toISOString().split('T')[0],
+        score,
+        grade: getGradeFromScore(score),
+        url: `https://example-${i}.com`,
+        missingHeaders: Math.max(0, 8 - Math.floor(score / 15)),
+        foundHeaders: Math.floor(score / 15) + 2,
+        framework: ['nginx', 'apache', 'express.js', 'next.js'][Math.floor(Math.random() * 4)]
+      });
+    }
+
+    return data;
+  }, []);
+
   useEffect(() => {
     // Load historical data from localStorage
     const loadHistoricalData = () => {
@@ -122,41 +157,6 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
       });
     }
   }, [currentAnalysis]);
-
-  const generateSampleData = useCallback((): TrendData[] => {
-    const data: TrendData[] = [];
-    const now = new Date();
-
-    for (let i = 30; i >= 0; i--) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - i);
-
-      const baseScore = 60 + Math.random() * 30;
-      const trend = i < 15 ? (15 - i) * 2 : 0; // Improvement trend
-      const score = Math.min(100, Math.round(baseScore + trend + (Math.random() - 0.5) * 10));
-
-      data.push({
-        date: date.toISOString().split('T')[0],
-        score,
-        grade: getGradeFromScore(score),
-        url: `https://example-${i}.com`,
-        missingHeaders: Math.max(0, 8 - Math.floor(score / 15)),
-        foundHeaders: Math.floor(score / 15) + 2,
-        framework: ['nginx', 'apache', 'express.js', 'next.js'][Math.floor(Math.random() * 4)]
-      });
-    }
-
-    return data;
-  }, []);
-
-  const getGradeFromScore = (score: number): string => {
-    if (score >= 95) return 'A+';
-    if (score >= 85) return 'A';
-    if (score >= 75) return 'B';
-    if (score >= 65) return 'C';
-    if (score >= 50) return 'D';
-    return 'F';
-  };
 
   const getFilteredData = () => {
     const now = new Date();
