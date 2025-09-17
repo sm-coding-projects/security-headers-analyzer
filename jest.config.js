@@ -7,7 +7,7 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jsdom',
-  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
+  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/', '<rootDir>/e2e/', '<rootDir>/playwright.config.ts'],
   transformIgnorePatterns: [
     'node_modules/(?!(@octokit|@next|next|node-fetch|data-uri-to-buffer|fetch-blob|formdata-polyfill)/)',
   ],
