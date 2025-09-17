@@ -100,12 +100,13 @@ jobs:
           RATE_LIMIT_REDIS_URL: redis://localhost:6379
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         if: matrix.node-version == 20
+        continue-on-error: true
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 
   # Build verification
   build:
