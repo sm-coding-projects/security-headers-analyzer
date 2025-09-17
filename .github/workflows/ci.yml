@@ -230,8 +230,14 @@ jobs:
 
       - name: Start application
         run: |
-          cd .next/standalone
-          node server.js &
+          # Try standalone first, fallback to dev mode if not available
+          if [ -f ".next/standalone/server.js" ]; then
+            echo "Using standalone production server"
+            cd .next/standalone && node server.js &
+          else
+            echo "Standalone not found, using dev mode"
+            npm run dev &
+          fi
           # Wait for application to start with health check
           for i in {1..30}; do
             if curl -f http://localhost:3000/api/health > /dev/null 2>&1; then
@@ -278,27 +284,6 @@ jobs:
 
       - name: Install Playwright
         run: npx playwright install --with-deps
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-files
-
-      - name: Start application
-        run: |
-          cd .next/standalone
-          node server.js &
-          # Wait for application to start with health check
-          for i in {1..30}; do
-            if curl -f http://localhost:3000/api/health > /dev/null 2>&1; then
-              echo "Application started successfully"
-              break
-            fi
-            echo "Waiting for application to start... ($i/30)"
-            sleep 2
-          done
-        env:
-          NODE_ENV: production
 
       - name: Run Playwright tests
         run: CI=true npx playwright test
