@@ -230,7 +230,8 @@ jobs:
 
       - name: Start application
         run: |
-          npm run start &
+          cd .next/standalone
+          node server.js &
           # Wait for application to start with health check
           for i in {1..30}; do
             if curl -f http://localhost:3000/api/health > /dev/null 2>&1; then
@@ -285,7 +286,8 @@ jobs:
 
       - name: Start application
         run: |
-          npm run start &
+          cd .next/standalone
+          node server.js &
           # Wait for application to start with health check
           for i in {1..30}; do
             if curl -f http://localhost:3000/api/health > /dev/null 2>&1; then
@@ -299,7 +301,7 @@ jobs:
           NODE_ENV: production
 
       - name: Run Playwright tests
-        run: npx playwright test
+        run: CI=true npx playwright test
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4

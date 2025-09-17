@@ -25,6 +25,9 @@ test('analyze button is present and clickable', async ({ page }) => {
   const urlInput = page.locator('input[placeholder*="example.com"]');
   await urlInput.fill('https://example.com');
 
+  // Wait for React state update
+  await page.waitForTimeout(100);
+
   // Now button should be enabled
   await expect(analyzeButton).toBeEnabled();
 });
