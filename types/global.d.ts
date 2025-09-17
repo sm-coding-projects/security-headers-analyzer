@@ -6,7 +6,7 @@ declare global {
       command: 'config' | 'set' | 'event' | 'consent' | 'get',
       targetId: string | Date,
       config?: {
-        [key: string]: any;
+        [key: string]: unknown;
         description?: string;
         fatal?: boolean;
         custom_map?: Record<string, string>;

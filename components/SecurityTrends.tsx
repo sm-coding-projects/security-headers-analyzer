@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Calendar, BarChart3, Download } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
@@ -86,7 +86,7 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
   const [selectedSector, setSelectedSector] = useState<string>('Technology');
   const [activeTab, setActiveTab] = useState('trends');
 
-  const getGradeFromScore = (score: number): string => {
+  const _getGradeFromScore = (score: number): string => {
     if (score >= 95) return 'A+';
     if (score >= 85) return 'A';
     if (score >= 75) return 'B';
@@ -490,7 +490,7 @@ export default function SecurityTrends({ isDarkMode = false, currentAnalysis }: 
                       cx="50%"
                       cy="50%"
                       outerRadius={80}
-                      label={({ name, percent }: any) => `${name} (${(percent * 100).toFixed(1)}%)`}
+                      label={(entry: any) => `${entry.name} (${(entry.percent * 100).toFixed(1)}%)`} // eslint-disable-line @typescript-eslint/no-explicit-any
                     >
                       {commonMissing.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />

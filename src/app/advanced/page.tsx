@@ -23,7 +23,16 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 export default function AdvancedDashboard() {
   const [activeTab, setActiveTab] = useState('trends');
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [latestAnalysis, setLatestAnalysis] = useState(null);
+  const [latestAnalysis, setLatestAnalysis] = useState<{
+    url: string;
+    score: number;
+    grade: string;
+    headers: {
+      found: { name: string; }[];
+      missing: { name: string; }[];
+    };
+    framework?: string;
+  } | null>(null);
 
   const tabs = [
     {
@@ -79,13 +88,14 @@ export default function AdvancedDashboard() {
             url: mostRecent.url,
             score: mostRecent.score,
             grade: getGradeFromScore(mostRecent.score),
-            timestamp: mostRecent.timestamp
+            headers: mostRecent.headers || { found: [], missing: [] },
+            framework: mostRecent.framework
           });
         }
       }
     };
 
-    const getGradeFromScore = (score) => {
+    const getGradeFromScore = (score: number): string => {
       if (score >= 95) return 'A+';
       if (score >= 85) return 'A';
       if (score >= 75) return 'B';
@@ -211,7 +221,7 @@ export default function AdvancedDashboard() {
                   >
                     <tab.component
                       isDarkMode={isDarkMode}
-                      currentAnalysis={tab.id === 'trends' ? latestAnalysis : undefined}
+                      currentAnalysis={tab.id === 'trends' && latestAnalysis ? latestAnalysis : undefined}
                     />
                   </motion.div>
                 </ErrorBoundary>

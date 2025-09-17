@@ -207,7 +207,7 @@ export default function InteractivePlayground({ isDarkMode = false }: Playground
     return score;
   };
 
-  const analyzeCSPPolicy = (policy: string): string[] => {
+  const _analyzeCSPPolicy = (policy: string): string[] => {
     const issues: string[] = [];
 
     if (!policy.includes('default-src')) {
