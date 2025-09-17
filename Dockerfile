@@ -11,12 +11,12 @@ RUN apk add --no-cache libc6-compat
 # Dependencies stage
 FROM base AS deps
 COPY package.json package-lock.json ./
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci --only=production --legacy-peer-deps && npm cache clean --force
 
 # Development dependencies stage
 FROM base AS deps-dev
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Development stage
 FROM base AS development
