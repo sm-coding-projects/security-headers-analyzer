@@ -7,13 +7,7 @@
     }
   },
   "env": {
-    "NODE_ENV": "production",
-    "NEXT_PUBLIC_APP_URL": "@next_public_app_url",
-    "DATABASE_URL": "@database_url",
-    "RATE_LIMIT_REDIS_URL": "@rate_limit_redis_url",
-    "SECRET_KEY": "@secret_key",
-    "SENTRY_DSN": "@sentry_dsn",
-    "ANALYTICS_ID": "@analytics_id"
+    "NODE_ENV": "production"
   },
   "headers": [
     {
