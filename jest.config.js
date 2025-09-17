@@ -28,6 +28,10 @@ const customJestConfig = {
       statements: 0.5,
     },
   },
+  haste: {
+    enableSymlinks: false,
+  },
+  modulePathIgnorePatterns: ['<rootDir>/.next/'],
 }
 
 module.exports = createJestConfig(customJestConfig)
