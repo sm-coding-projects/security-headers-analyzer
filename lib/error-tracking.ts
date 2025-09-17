@@ -182,14 +182,17 @@ class ErrorTracker {
         })
       }
 
-      // Send error to API endpoint for logging
-      await fetch('/api/errors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(errorEvent)
-      }).catch(() => {
-        // Silently fail to avoid recursive errors
-      })
+      // Temporarily disable API error reporting to prevent loops
+      // TODO: Re-enable when client component issues are fixed
+      // if (!errorEvent.context.url?.includes('/api/errors')) {
+      //   await fetch('/api/errors', {
+      //     method: 'POST',
+      //     headers: { 'Content-Type': 'application/json' },
+      //     body: JSON.stringify(errorEvent)
+      //   }).catch(() => {
+      //     // Silently fail to avoid recursive errors
+      //   })
+      // }
     } catch {
       // Silently fail to avoid recursive errors
     }

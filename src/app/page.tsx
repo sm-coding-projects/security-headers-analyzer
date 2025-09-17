@@ -146,12 +146,85 @@ export default function SecurityDashboard() {
     }
   };
 
-  // Export as PDF
-  const exportAsPDF = async () => {
-    if (!analysis || !reportRef.current) return;
+  // Export as PDF using server-side API
+  const exportAsPDFServer = async () => {
+    if (!analysis) {
+      toast.error('No analysis data found');
+      return;
+    }
+
+    const loadingToast = toast.loading('Generating PDF using server...');
 
     try {
-      const canvas = await html2canvas(reportRef.current);
+      // Encode analysis data
+      const encodedData = btoa(JSON.stringify(analysis));
+      // URL encode the base64 data to prevent corruption
+      const urlSafeData = encodeURIComponent(encodedData);
+
+      // Use fetch to check the response first
+      const response = await fetch(`/api/report/export?format=pdf&data=${urlSafeData}`);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || `Server returned ${response.status}`);
+      }
+
+      // Create blob from response
+      const blob = await response.blob();
+
+      // Create download URL
+      const url = URL.createObjectURL(blob);
+
+      // Create invisible download link
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `security-headers-report-${analysis.url.replace(/https?:\/\//, '').replace(/\//g, '-')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Clean up
+      URL.revokeObjectURL(url);
+
+      toast.dismiss(loadingToast);
+      toast.success('PDF report downloaded!');
+    } catch (error) {
+      console.error('Server PDF generation error:', error);
+      toast.dismiss(loadingToast);
+      toast.error(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  // Export as PDF (client-side with server fallback)
+  const exportAsPDF = async () => {
+    if (!analysis || !reportRef.current) {
+      toast.error('No analysis data or report element found');
+      return;
+    }
+
+    // Declare loadingToast outside try block so it's accessible in catch
+    let loadingToast: string | undefined;
+
+    try {
+      // Check if required libraries are available
+      if (!html2canvas) {
+        console.warn('html2canvas not available, using server-side PDF generation');
+        return exportAsPDFServer();
+      }
+      if (!jsPDF) {
+        console.warn('jsPDF not available, using server-side PDF generation');
+        return exportAsPDFServer();
+      }
+
+      loadingToast = toast.loading('Generating PDF...');
+
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
+      });
+
       const imgData = canvas.toDataURL('image/png');
 
       const pdf = new jsPDF();
@@ -173,9 +246,18 @@ export default function SecurityDashboard() {
       }
 
       pdf.save(`security-headers-report-${analysis.url.replace(/https?:\/\//, '').replace(/\//g, '-')}.pdf`);
+      if (loadingToast) {
+        toast.dismiss(loadingToast);
+      }
       toast.success('PDF report downloaded!');
-    } catch {
-      toast.error('Failed to generate PDF');
+    } catch (error) {
+      console.error('Client PDF generation error:', error);
+      console.warn('Falling back to server-side PDF generation');
+      if (loadingToast) {
+        toast.dismiss(loadingToast);
+      }
+      toast('Trying alternative PDF generation method...');
+      return exportAsPDFServer();
     }
   };
 

@@ -12,6 +12,9 @@ const cache = new InMemoryCache<Buffer>({ ttl: 300000, maxSize: 100 });
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
+  console.log('=== PDF Export route hit (UPDATED) ===', request.url);
+  console.log('Method:', request.method);
+  console.log('Headers:', Object.fromEntries(request.headers.entries()));
 
   try {
     const clientId = getClientIdentifier(request);
@@ -54,9 +57,36 @@ export async function GET(request: NextRequest) {
 
     let analysisData: AnalysisResult;
     try {
-      const decodedData = Buffer.from(dataParam, 'base64').toString('utf-8');
+      // URL decode the data parameter first to handle %3D and other encoded characters
+      const urlDecodedData = decodeURIComponent(dataParam);
+      console.log('URL decoded data length:', urlDecodedData.length);
+      console.log('URL decoded data first 100 chars:', urlDecodedData.substring(0, 100));
+
+      // Handle both Buffer and atob decoding for better compatibility
+      let decodedData: string;
+      try {
+        // Try Node.js Buffer approach first
+        decodedData = Buffer.from(urlDecodedData, 'base64').toString('utf-8');
+      } catch {
+        // Fallback to atob if available (shouldn't happen on server, but just in case)
+        decodedData = Buffer.from(urlDecodedData, 'base64').toString('utf-8');
+      }
+
+      // Clean up any trailing whitespace or newlines
+      decodedData = decodedData.trim();
+
+      // Remove any control characters that might cause JSON parsing issues
+      decodedData = decodedData.replace(/[\x00-\x1F\x7F]/g, '');
+
+      console.log('Decoded JSON length:', decodedData.length);
+      console.log('Decoded JSON first 200 chars:', decodedData.substring(0, 200));
+
       analysisData = JSON.parse(decodedData);
-    } catch {
+    } catch (error) {
+      console.error('Base64 decode error:', error);
+      console.error('Data parameter length:', dataParam.length);
+      console.error('Data parameter first 100 chars:', dataParam.substring(0, 100));
+
       return NextResponse.json(
         { error: 'Invalid data format. Unable to parse analysis data.' },
         { status: 400 }
@@ -64,6 +94,11 @@ export async function GET(request: NextRequest) {
     }
 
     if (!isValidAnalysisResult(analysisData)) {
+      console.error('Analysis data validation failed');
+      console.error('Analysis data type:', typeof analysisData);
+      console.error('Analysis data keys:', Object.keys(analysisData || {}));
+      console.error('Analysis data sample:', JSON.stringify(analysisData, null, 2).substring(0, 500));
+
       return NextResponse.json(
         { error: 'Invalid analysis data structure.' },
         { status: 400 }
@@ -158,27 +193,81 @@ export async function GET(request: NextRequest) {
 
 function isValidAnalysisResult(data: unknown): data is AnalysisResult {
   if (!data || typeof data !== 'object') {
+    console.log('Validation failed: data is not an object');
     return false;
   }
 
   const obj = data as Record<string, unknown>;
 
-  return (
-    typeof obj.url === 'string' &&
-    typeof obj.score === 'number' &&
-    typeof obj.grade === 'string' &&
-    typeof obj.headers === 'object' &&
-    obj.headers !== null &&
-    Array.isArray((obj.headers as Record<string, unknown>).found) &&
-    Array.isArray((obj.headers as Record<string, unknown>).missing) &&
-    Array.isArray(obj.recommendations) &&
-    typeof obj.timestamp === 'string'
-  );
+  // Log the object structure for debugging
+  console.log('Validating analysis result:', {
+    url: typeof obj.url,
+    score: typeof obj.score,
+    grade: typeof obj.grade,
+    headers: typeof obj.headers,
+    headersIsArray: Array.isArray(obj.headers),
+    headersKeys: obj.headers && typeof obj.headers === 'object' ? Object.keys(obj.headers) : null,
+    recommendations: Array.isArray(obj.recommendations),
+    timestamp: typeof obj.timestamp,
+    fixes: typeof obj.fixes
+  });
+
+  // Check basic required fields
+  if (typeof obj.url !== 'string') {
+    console.log('Validation failed: url is not a string');
+    return false;
+  }
+  if (typeof obj.score !== 'number' && typeof obj.score !== 'string') {
+    console.log('Validation failed: score is not a number or string');
+    return false;
+  }
+  if (typeof obj.grade !== 'string') {
+    console.log('Validation failed: grade is not a string');
+    return false;
+  }
+  if (typeof obj.headers !== 'object' || obj.headers === null) {
+    console.log('Validation failed: headers is not an object');
+    return false;
+  }
+
+  const headers = obj.headers as Record<string, unknown>;
+
+  // Handle both new format (headers.found/missing arrays) and old format (direct header objects)
+  const hasNewFormat = Array.isArray(headers.found) && Array.isArray(headers.missing);
+  const hasOldFormat = !headers.found && !headers.missing && Object.keys(headers).length > 0;
+
+  if (!hasNewFormat && !hasOldFormat) {
+    console.log('Validation failed: headers format not recognized', {
+      hasFound: !!headers.found,
+      foundIsArray: Array.isArray(headers.found),
+      hasMissing: !!headers.missing,
+      missingIsArray: Array.isArray(headers.missing),
+      headerKeys: Object.keys(headers)
+    });
+    return false;
+  }
+
+  // Make optional fields optional with defaults
+  if (obj.recommendations !== undefined && !Array.isArray(obj.recommendations)) {
+    console.log('Validation failed: recommendations is not an array');
+    return false;
+  }
+  if (obj.timestamp !== undefined && typeof obj.timestamp !== 'string') {
+    console.log('Validation failed: timestamp is not a string');
+    return false;
+  }
+  if (obj.fixes !== undefined && (typeof obj.fixes !== 'object' || obj.fixes === null)) {
+    console.log('Validation failed: fixes is not an object');
+    return false;
+  }
+
+  console.log('Validation passed successfully');
+  return true;
 }
 
 function generateFilename(data: AnalysisResult, format: string): string {
   const domain = new URL(data.url).hostname.replace(/[^a-zA-Z0-9.-]/g, '_');
-  const timestamp = new Date(data.timestamp).toISOString().slice(0, 10);
+  const timestamp = data.timestamp ? new Date(data.timestamp).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
   return `security-headers-${domain}-${timestamp}.${format}`;
 }
 
@@ -188,7 +277,7 @@ function generateJSONReport(data: AnalysisResult) {
       title: 'Security Headers Analysis Report',
       url: data.url,
       generatedAt: new Date().toISOString(),
-      analysisDate: data.timestamp,
+      analysisDate: data.timestamp || new Date().toISOString(),
       framework: data.framework || 'Unknown',
       tool: 'Security Headers Analyzer'
     },
@@ -223,19 +312,25 @@ function generateJSONReport(data: AnalysisResult) {
         description: h.description
       })) || []
     },
-    recommendations: data.recommendations.map(r => ({
+    recommendations: (data.recommendations || []).map(r => ({
       header: r.header,
       severity: r.severity,
       priority: r.priority,
       issue: r.issue,
       solution: r.solution
     })),
-    fixes: {
+    fixes: data.fixes ? {
       nginx: data.fixes.nginx,
       apache: data.fixes.apache,
       expressjs: data.fixes.expressjs,
       nextjs: data.fixes.nextjs,
       cloudflare: data.fixes.cloudflare
+    } : {
+      nginx: '',
+      apache: '',
+      expressjs: '',
+      nextjs: '',
+      cloudflare: ''
     }
   };
 }
@@ -259,7 +354,7 @@ async function generatePDFReport(data: AnalysisResult): Promise<Buffer> {
   doc.text(`URL: ${data.url}`, margin, yPosition);
   yPosition += lineHeight;
 
-  doc.text(`Analysis Date: ${new Date(data.timestamp).toLocaleString()}`, margin, yPosition);
+  doc.text(`Analysis Date: ${data.timestamp ? new Date(data.timestamp).toLocaleString() : new Date().toLocaleString()}`, margin, yPosition);
   yPosition += lineHeight;
 
   doc.text(`Generated: ${new Date().toLocaleString()}`, margin, yPosition);
@@ -314,7 +409,7 @@ async function generatePDFReport(data: AnalysisResult): Promise<Buffer> {
     });
   }
 
-  if (data.recommendations.length > 0) {
+  if (data.recommendations && data.recommendations.length > 0) {
     yPosition += lineHeight;
     doc.setFontSize(14);
     doc.text('Recommendations', margin, yPosition);
@@ -370,28 +465,30 @@ async function generatePDFReport(data: AnalysisResult): Promise<Buffer> {
     yPosition += lineHeight * 1.5;
   }
 
-  const platforms = ['nginx', 'apache', 'expressjs', 'nextjs'];
-  platforms.forEach(platform => {
-    if (data.fixes[platform as keyof typeof data.fixes]) {
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'bold');
-      doc.text(platform.toUpperCase(), margin, yPosition);
-      yPosition += lineHeight;
+  if (data.fixes) {
+    const platforms = ['nginx', 'apache', 'expressjs', 'nextjs'];
+    platforms.forEach(platform => {
+      if (data.fixes && data.fixes[platform as keyof typeof data.fixes]) {
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text(platform.toUpperCase(), margin, yPosition);
+        yPosition += lineHeight;
 
-      doc.setFontSize(8);
-      doc.setFont('courier', 'normal');
-      const configLines = data.fixes[platform as keyof typeof data.fixes].split('\n');
-      configLines.forEach(line => {
-        if (yPosition > pageHeight - 20) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.text(line, margin + 5, yPosition);
-        yPosition += lineHeight * 0.7;
-      });
-      yPosition += lineHeight;
-    }
-  });
+        doc.setFontSize(8);
+        doc.setFont('courier', 'normal');
+        const configLines = data.fixes[platform as keyof typeof data.fixes].split('\n');
+        configLines.forEach(line => {
+          if (yPosition > pageHeight - 20) {
+            doc.addPage();
+            yPosition = 20;
+          }
+          doc.text(line, margin + 5, yPosition);
+          yPosition += lineHeight * 0.7;
+        });
+        yPosition += lineHeight;
+      }
+    });
+  }
 
   return Buffer.from(doc.output('arraybuffer'));
 }
