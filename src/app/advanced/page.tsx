@@ -9,9 +9,9 @@ import {
   FileUp,
   Code,
   Settings,
-  Brain
+  Brain,
+  ArrowLeft
 } from 'lucide-react';
-import clsx from 'clsx';
 
 // Import advanced components
 import SecurityTrends from '@/components/SecurityTrends';
@@ -22,7 +22,6 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 
 export default function AdvancedDashboard() {
   const [activeTab, setActiveTab] = useState('trends');
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [latestAnalysis, setLatestAnalysis] = useState<{
     url: string;
     score: number;
@@ -65,24 +64,14 @@ export default function AdvancedDashboard() {
     }
   ];
 
-  // Load latest analysis and dark mode from main app
   useEffect(() => {
-    // Load dark mode state from localStorage
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-    setIsDarkMode(savedDarkMode);
-    if (savedDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.add('dark');
 
     const loadLatestAnalysis = () => {
-      // Load from recentAnalyses (from main app)
       const recentAnalyses = localStorage.getItem('recentAnalyses');
       if (recentAnalyses) {
         const analyses = JSON.parse(recentAnalyses);
         if (analyses.length > 0) {
-          // Get the most recent analysis
           const mostRecent = analyses[0];
           setLatestAnalysis({
             url: mostRecent.url,
@@ -104,106 +93,74 @@ export default function AdvancedDashboard() {
       return 'F';
     };
 
-
     loadLatestAnalysis();
   }, []);
 
-  const toggleDarkMode = () => {
-    const newMode = !isDarkMode;
-    setIsDarkMode(newMode);
-    localStorage.setItem('darkMode', String(newMode));
-    if (newMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
-
   return (
     <ErrorBoundary level="page" showDetails={true}>
-      <div className={clsx('min-h-screen transition-colors duration-300', {
-        'bg-gray-900 text-white': isDarkMode,
-        'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50': !isDarkMode
-      })}>
+      <div className="min-h-screen bg-[#0B0F19] text-slate-100">
         {/* Navigation */}
-        <nav className={clsx('border-b backdrop-blur-sm sticky top-0 z-50', {
-          'bg-gray-900/80 border-gray-700': isDarkMode,
-          'bg-white/80 border-gray-200': !isDarkMode
-        })}>
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <nav className="glass-strong border-b border-slate-800/50 sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-2 rounded-lg">
-                <Brain className="h-6 w-6 text-white" />
+              <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 glow-cyan">
+                <Brain className="h-5 w-5 text-cyan-400" />
               </div>
               <div>
-                <h1 className="text-xl font-bold">Advanced Security Features</h1>
-                <p className="text-xs text-gray-500">Professional security analysis tools</p>
+                <h1 className="text-lg font-semibold tracking-tight text-slate-100">Advanced Tools</h1>
+                <p className="text-[10px] text-slate-500">Professional security analysis</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <Link
                 href="/"
-                className={clsx('px-3 py-2 rounded-lg transition-colors', {
-                  'hover:bg-gray-700 text-gray-300': isDarkMode,
-                  'hover:bg-gray-100 text-gray-700': !isDarkMode
-                })}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors"
               >
-                Back to Main
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Dashboard
               </Link>
-              <button
-                onClick={toggleDarkMode}
-                className={clsx('p-2 rounded-lg transition-colors', {
-                  'hover:bg-gray-700': isDarkMode,
-                  'hover:bg-gray-100': !isDarkMode
-                })}
-              >
-                {isDarkMode ? '☀️' : '🌙'}
-              </button>
             </div>
           </div>
         </nav>
 
-        {/* Hero Section */}
+        {/* Compact Header */}
         <motion.section
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="py-12"
+          className="py-8"
         >
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <div className="max-w-7xl mx-auto px-6">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-100 mb-2">
               Advanced Security Tools
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-              Professional-grade security analysis, monitoring, and integration tools for enterprise workflows
+            <p className="text-slate-500 text-sm">
+              Professional-grade analysis, monitoring, and integration tools
             </p>
           </div>
         </motion.section>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 pb-16">
+        <div className="max-w-7xl mx-auto px-6 pb-16">
           <Tabs.Root value={activeTab} onValueChange={setActiveTab}>
             {/* Tab Navigation */}
             <div className="mb-8">
-              <div className={clsx('p-6 rounded-xl border', {
-                'bg-gray-800 border-gray-700': isDarkMode,
-                'bg-white border-gray-200': !isDarkMode
-              })}>
-                <Tabs.List className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="glass rounded-2xl p-5">
+                <Tabs.List className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                   {tabs.map((tab) => (
                     <Tabs.Trigger
                       key={tab.id}
                       value={tab.id}
-                      className={clsx('p-4 rounded-lg transition-all duration-200 text-left', {
-                        'bg-blue-600 text-white shadow-lg': activeTab === tab.id,
-                        'bg-gray-100 hover:bg-gray-200 text-gray-700': activeTab !== tab.id && !isDarkMode,
-                        'bg-gray-700 hover:bg-gray-600 text-gray-300': activeTab !== tab.id && isDarkMode,
-                      })}
+                      className={`p-4 rounded-xl transition-all duration-200 text-left ${
+                        activeTab === tab.id
+                          ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 glow-cyan'
+                          : 'bg-slate-800/30 hover:bg-slate-800/50 text-slate-400 border border-transparent'
+                      }`}
                     >
-                      <div className="flex items-center gap-3 mb-2">
-                        <tab.icon className="h-5 w-5" />
-                        <span className="font-semibold">{tab.name}</span>
+                      <div className="flex items-center gap-2.5 mb-1.5">
+                        <tab.icon className="h-4 w-4" />
+                        <span className="font-medium text-sm">{tab.name}</span>
                       </div>
-                      <p className="text-xs opacity-80">{tab.description}</p>
+                      <p className="text-[11px] opacity-60">{tab.description}</p>
                     </Tabs.Trigger>
                   ))}
                 </Tabs.List>
@@ -215,12 +172,12 @@ export default function AdvancedDashboard() {
               <Tabs.Content key={tab.id} value={tab.id}>
                 <ErrorBoundary level="component">
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
                   >
                     <tab.component
-                      isDarkMode={isDarkMode}
+                      isDarkMode={true}
                       currentAnalysis={tab.id === 'trends' && latestAnalysis ? latestAnalysis : undefined}
                     />
                   </motion.div>
