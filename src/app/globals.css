@@ -1,78 +1,189 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Dark-only palette: Slate & Charcoal */
+  --bg-primary: #0B0F19;
+  --bg-secondary: #111827;
+  --bg-card: #1A1F2E;
+  --bg-card-hover: #222838;
+  --border-subtle: #1E293B;
+  --border-default: #334155;
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+
+  /* Status glows */
+  --emerald-glow: #10B981;
+  --ruby-glow: #EF4444;
+  --amber-glow: #F59E0B;
+  --accent-cyan: #06B6D4;
+  --accent-blue: #3B82F6;
+
+  --background: #0B0F19;
+  --foreground: #F1F5F9;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-.dark {
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f172a;
-    --foreground: #f1f5f9;
-  }
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar styles */
-::-webkit-scrollbar {
+/* Frosted glass effects */
+.glass {
+  background: rgba(26, 31, 46, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-strong {
+  background: rgba(26, 31, 46, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Status glow effects */
+.glow-emerald {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15), 0 0 6px rgba(16, 185, 129, 0.1);
+}
+
+.glow-ruby {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.15), 0 0 6px rgba(239, 68, 68, 0.1);
+}
+
+.glow-amber {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.15), 0 0 6px rgba(245, 158, 11, 0.1);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.15), 0 0 6px rgba(6, 182, 212, 0.1);
+}
+
+/* Status dot indicators */
+.status-dot {
   width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot-emerald {
+  background: var(--emerald-glow);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.status-dot-ruby {
+  background: var(--ruby-glow);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+}
+
+.status-dot-amber {
+  background: var(--amber-glow);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.15), 0 0 60px rgba(6, 182, 212, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.25), 0 0 80px rgba(6, 182, 212, 0.1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Custom scrollbar - dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.dark ::-webkit-scrollbar-track {
-  background: #374151;
+  background: #111827;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #6b7280;
+  background: #334155;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #475569;
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
-}
-
-/* Smooth transitions for interactive elements */
+/* Smooth transitions */
 .transition-smooth {
   transition: all 0.2s ease-in-out;
 }
 
-/* Custom focus styles for better accessibility */
+/* Focus styles */
 .focus-ring:focus {
-  outline: 2px solid #3B82F6;
+  outline: 2px solid var(--accent-cyan);
   outline-offset: 2px;
 }
 
-/* Loading animation keyframes */
+/* Bento grid utility */
+.bento-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 768px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Score gauge glow ring */
+.gauge-ring {
+  filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.3));
+}
+
+/* Loading animation */
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
