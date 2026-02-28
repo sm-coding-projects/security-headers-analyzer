@@ -2,11 +2,13 @@
 
 A comprehensive web security tool that analyzes HTTP security headers and automatically generates pull requests to fix security vulnerabilities in your projects.
 
-[![CI/CD](https://github.com/yourusername/security-headers-analyzer/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/yourusername/security-headers-analyzer/actions)
-[![codecov](https://codecov.io/gh/yourusername/security-headers-analyzer/branch/main/graph/badge.svg)](https://codecov.io/gh/yourusername/security-headers-analyzer)
+[![CI/CD](https://github.com/sm-coding-projects/security-headers-analyzer/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/sm-coding-projects/security-headers-analyzer/actions)
+[![codecov](https://codecov.io/gh/sm-coding-projects/security-headers-analyzer/branch/main/graph/badge.svg)](https://codecov.io/gh/sm-coding-projects/security-headers-analyzer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)](https://nextjs.org)
+
+**Live Demo**: [https://security-headers-analyzer-beta.vercel.app/](https://security-headers-analyzer-beta.vercel.app/)
 
 ## ✨ Features
 
@@ -61,7 +63,7 @@ A comprehensive web security tool that analyzes HTTP security headers and automa
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/security-headers-analyzer.git
+   git clone https://github.com/sm-coding-projects/security-headers-analyzer.git
    cd security-headers-analyzer
    ```
 
@@ -82,7 +84,7 @@ A comprehensive web security tool that analyzes HTTP security headers and automa
    ```
 
 5. **Open your browser**
-   Visit [http://localhost:3000](http://localhost:3000)
+   Visit [http://localhost:3000](http://localhost:3000) or the live deployment at [https://security-headers-analyzer-beta.vercel.app/](https://security-headers-analyzer-beta.vercel.app/)
 
 ### Using Docker
 
@@ -218,7 +220,7 @@ security-headers-analyzer/
 ```
 
 ### Tech Stack
-- **Framework**: Next.js 15 with App Router
+- **Framework**: Next.js 15.5 with App Router
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **UI Components**: Radix UI
@@ -358,7 +360,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/):
 ## 🔒 Security Policy
 
 ### Reporting Vulnerabilities
-If you discover a security vulnerability, please email security@yourdomain.com instead of creating a public issue.
+If you discover a security vulnerability, please create a private security advisory on the [GitHub repository](https://github.com/sm-coding-projects/security-headers-analyzer/security/advisories) instead of creating a public issue.
 
 ### Security Measures
 - Rate limiting on all API endpoints
@@ -381,10 +383,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Documentation**: [docs.yourdomain.com](https://docs.yourdomain.com)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/security-headers-analyzer/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/security-headers-analyzer/discussions)
-- **Email**: support@yourdomain.com
+- **Live App**: [security-headers-analyzer-beta.vercel.app](https://security-headers-analyzer-beta.vercel.app/)
+- **Issues**: [GitHub Issues](https://github.com/sm-coding-projects/security-headers-analyzer/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/sm-coding-projects/security-headers-analyzer/discussions)
 
 ## 🗺️ Roadmap
 
